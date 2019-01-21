@@ -215,7 +215,20 @@ package body p_combinaisons is
 		return result;
 	end est_contigue;
 
-	--procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
+	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
+	tmp : string(1..14);
+	nb : integer;
+	begin
+		reset(fsol,IN_FILE);
+		reset(fcon,OUT_FILE);
+		while not end_of_file(fsol) loop
+			get_line(fsol,tmp,nb);
+			if tmp(1) in ('A'..'D') and then est_contigue(tmp(1..nb)) then
+				put_line(fcon,tmp(1..nb));
+			end if;
+		end loop;
+	end creeFicsolcont;
+
 
 end p_combinaisons;
