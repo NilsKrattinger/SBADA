@@ -6,6 +6,7 @@ package body p_vue_text is
   procedure afficheLigne(carAngle,carLigne: in character) is
   -- {} => {Une nouvelle ligne de la grille est affichée}
   begin
+    put(' ');
     for i in 1..4 loop
       put(carAngle);
       for i in 1..taille loop
@@ -38,12 +39,25 @@ package body p_vue_text is
   procedure afficheGrille(V : TV_Gaudi) is
   -- {V'length = 16} => {La grille est affichée dans la console}
   begin
-    for i in 0..3 loop
+    put(' ');
+    for c in character range 'A'..'D' loop
+      for i in 1..3 loop
+        put(' ');
+      end loop;
+      put(c);
+      for i in 1..2 loop
+        put(' ');
+      end loop;
+    end loop;
+    new_line;
+
+    for i in 1..4 loop
       afficheLigne(angle, ligne);
       afficheLigne(colonne, ' '); afficheLigne(colonne, ' ');
 
-      for j in 1..4 loop -- Affichage ligne avec valeurs
-        afficheValeur(V, i * 4 + j);
+      put(i, 1);
+      for j in 0..3 loop -- Affichage ligne avec valeurs
+        afficheValeur(V, j * 4 + i);
       end loop;
       put(colonne); new_line;
 
