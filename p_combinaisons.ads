@@ -23,6 +23,7 @@ package p_combinaisons is
 	---- Type pour le vecteur de "travail" --------------------------------------------------------------------------
 	type TV_Gaudi is array (positive range <>) of TR_Case;
 	type TV_Ent is array(integer range <>) of integer;
+	type TV_Bool is array(integer range <>) of boolean;
 
 	---- Recherche et affichage des combinaisons --------------------------------------------------------------------
 
@@ -45,6 +46,9 @@ package p_combinaisons is
 	function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
 	-- {fsol ouvert, f- = <>}
 	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
+
+	procedure contigueRecur(sol : in string; ind : in integer; contigus : in out TV_Bool; estContig: out boolean);
+	--{sol représente une solution} => {estContig est vrai si sol est une solution contigüe}
 
 	function est_contigue(sol : in string) return boolean;
 	--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}

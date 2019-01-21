@@ -177,44 +177,49 @@ package body p_combinaisons is
 
 	end combi;
 
+	function verifContig(C1, C2: in string) return boolean is
+	-- {C1'length = C2'length = 2} => {résultat = vrai si les cases C1 et C2 sont contigües}
+		L1, L2: character;
+		N1, N2: character;
+	begin
+		L1 := C1(C1'first);
+		N1 := C1(C1'first+1);
+		L2 := C2(C2'first);
+		N2 := C2(C2'first+1);
+
+		return (L1 = L2 or L1 = Character'pred(L2) or L1 = Character'succ(L2)) and
+				(N1 = N2 or N1 = Character'pred(N2) or N1 = Character'succ(N2));
+	end verifContig;
+
+	procedure contigueRecur(sol : in string; ind : in integer; contigus : in out TV_Bool; estContig: out boolean) is
+	--{sol représente une solution} => {estContig est vrai si sol est une solution contigüe}
+	begin
+		for i in contigus'range loop
+			if not contigus(i) and verifContig(sol(ind*2-1..ind*2), sol(i*2-1..i*2)) then
+				contigus(i) := true;
+				contigueRecur(sol, i, contigus, estContig);
+			end if;
+		end loop;
+
+		if ind = 1 then
+			estContig := true;
+			for i in contigus'range loop
+				if contigus(i) = false then
+					estContig := false;
+				end if;
+			end loop;
+		end if;
+	end contigueRecur;
+
+
 	function est_contigue(sol : in string) return boolean is
 	--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
-		nbelems: constant integer := sol'length/2;
-		contig: array(1..nbelems) of boolean;
-
-		function verifContig(C1, C2: in string) return boolean is
-			L1, L2: character;
-			N1, N2: character;
-		begin
-			L1 := C1(C1'first);
-			N1 := C1(C1'first+1);
-			L2 := C2(C2'first);
-			N2 := C2(C2'first+1);
-
-			return (L1 = L2 or L1 = Character'pred(L2) or L1 = Character'succ(L2)) and
-					(N1 = N2 or N1 = Character'pred(N2) or N1 = Character'succ(N2));
-		end verifContig;
-
-		result : boolean := true;
+		nbelem: constant integer := sol'length/2;
+		contig: TV_Bool(1..nbelem) := (true, others => false);
+		resultat: boolean;
 	begin
-		contig := (others => false);
-		for i in 1..nbelems loop
-			if not contig(i) then
-				for j in 1..nbelems loop
-					if verifContig(sol(i*2-1..i*2), sol(j*2-1..j*2)) and i /= j then
-						contig(i) := true;
-						contig(j) := true;
-					end if;
-				end loop;
-			end if;
-		end loop;
-
-		for i in contig'range loop
-			if not contig(i) then
-				result := false;
-			end if;
-		end loop;
-		return result;
+		contigueRecur(sol, 1, contig, resultat);
+		return resultat;
 	end est_contigue;
 
 	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) is
