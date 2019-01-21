@@ -186,11 +186,13 @@ package body p_combinaisons is
 			L1, L2: character;
 			N1, N2: character;
 		begin
-			L1 := C1(1); N1 := C1(2);
-			L2 := C2(1); N2 := C2(2);
+			L1 := C1(C1'first);
+			N1 := C1(C1'first+1);
+			L2 := C2(C2'first);
+			N2 := C2(C2'first+1);
 
 			return (L1 = L2 or L1 = Character'pred(L2) or L1 = Character'succ(L2)) and
-					(N1 = N2 or N1 = N2 - 1 or N1 = N2 + 1);
+					(N1 = N2 or N1 = Character'pred(N2) or N1 = Character'succ(N2));
 		end verifContig;
 
 		result : boolean := true;
@@ -207,7 +209,7 @@ package body p_combinaisons is
 			end if;
 		end loop;
 
-		for i in contig loop
+		for i in contig'range loop
 			if not contig(i) then
 				result := false;
 			end if;
@@ -215,17 +217,17 @@ package body p_combinaisons is
 		return result;
 	end est_contigue;
 
-	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
+	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) is
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
-	tmp : string(1..14);
+	tmp : string(1..15);
 	nb : integer;
 	begin
 		reset(fsol,IN_FILE);
-		reset(fcon,OUT_FILE);
+		reset(fcont,OUT_FILE);
 		while not end_of_file(fsol) loop
 			get_line(fsol,tmp,nb);
-			if tmp(1) in ('A'..'D') and then est_contigue(tmp(1..nb)) then
-				put_line(fcon,tmp(1..nb));
+			if tmp(1) in 'A'..'D' and then est_contigue(tmp(1..nb)) then
+				put_line(fcont,tmp(1..nb));
 			end if;
 		end loop;
 	end creeFicsolcont;
