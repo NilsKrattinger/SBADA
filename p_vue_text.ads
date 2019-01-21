@@ -17,7 +17,7 @@ package p_vue_text is
   procedure afficheGrille(V : TV_Gaudi);
   -- {V'length = 16} => {La grille est affichée dans la console}
 
-procedure afficheSolution is (nb : in integer; fsol : in out text_io.file_type);
---{fsol ouvert } => {Les solution de fsol a Nb elements sont affichées}
+  procedure afficheSolution(nb : in integer; fsol : in out text_io.file_type);
+  --{fsol ouvert } => {Les solution de fsol a Nb elements sont affichées}
 
 end p_vue_text;

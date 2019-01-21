@@ -67,33 +67,37 @@ package body p_vue_text is
   end afficheGrille;
 
 
-  procedure afficheSolution is (nb : in integer; fsol : in out text_io.file_type) is
+  procedure afficheSolution (nb : in integer; fsol : in out text_io.file_type) is
   --{fsol ouvert } => {Les solution de fsol a Nb elements sont affichées}
-  Nbchar,nbsol : integer;
-  tmp : string(1..15);
-  Categorie : boolean := true;
-  i : integer := 0;
+    Nbchar,nbsol : integer;
+    tmp : string(1..15);
+    Categorie : boolean := true;
+    i : integer := 0;
   begin
-  nbsol := (nbCombi(fsol,nb));
-  put(" * "); put(nbsol); put("solutions en" & integer'image(nb)& " cases");
-  new_line;
-  put("-----------------------");
+    reset(fsol, IN_FILE);
+    nbsol := (nbCombi(fsol,nb));
+    put(" * "); put(nbsol,1); put(" solutions en" & integer'image(nb)& " cases");
+    new_line;
+    put("--------------------------");
+    new_line;
 
-  while not end_of_file(f) and Categorie loop
-  get_line(get_line(fsol,tmp,Nbchar);
-    if tmp(1) in T_col'range then
-      put("solution " & integer'image(i)(2) &('/') &(nbsol) & (" : "));
-      for i in i..Nbchar/2  loop
-        put(tmp(i*2-1)&tmp(i*2));
-        if i*2 /= Nbchar then
-          put(',');
-        end if;
+    skip_line(fsol);
+    while not end_of_file(fsol) and Categorie loop
+      get_line(fsol,tmp,Nbchar);
+      if tmp(1) in T_col'range then
+        i := i + 1;
+        put("solution" & integer'image(i) & '/' & integer'image(nbsol) & " : ");
+        for j in 1..Nbchar/2  loop
+          put(tmp(j*2-1)&tmp(j*2));
+          if j*2 /= Nbchar then
+            put(',');
+          end if;
+        end loop;
         new_line;
-      end loop;
-    else
-      Categorie := false;
-    end if;
-  end loop;
+      else
+        Categorie := false;
+      end if;
+    end loop;
   end afficheSolution;
 
 
