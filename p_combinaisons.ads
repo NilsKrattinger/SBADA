@@ -22,6 +22,7 @@ package p_combinaisons is
 
 	---- Type pour le vecteur de "travail" --------------------------------------------------------------------------
 	type TV_Gaudi is array (positive range <>) of TR_Case;
+	type TV_Ent is array(integer range <>) of integer;
 
 	---- Recherche et affichage des combinaisons --------------------------------------------------------------------
 

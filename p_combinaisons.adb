@@ -7,7 +7,7 @@ package body p_combinaisons is
   ---- Recherche et affichage des combinaisons --------------------------------------------------------------------
 
 	procedure CreeVectGaudi(f : in out p_cases_IO.file_type; V : out TV_Gaudi) is
-	-- {f ouvert, V de taille suffisante} => {le contenu de f a �t� copi� dans V}
+	-- {f ouvert, V de taille suffisante} => {le contenu de f a été copié dans V}
 		i : integer;
 		tmp := TR_Case;
 		begin
@@ -48,21 +48,60 @@ package body p_combinaisons is
     end loop;
   end triVectGaudi;
 
-	procedure creeFicsol(V : in TV_Gaudi; fsol : in out text_io.file_type);
-	-- {f ouvert en �criture, V Tri� par nom de case}
+	procedure trouveSol(V : in TV_Gaudi) is
+		-- {} => {trouve les solutions et les stocke dans des fichiers temporaires}
+
+		function somme(V : in TV_Gaudi; Vind : in TV_Ent) return integer is
+		-- {Vind contient des indices présents dans V}
+		-- => {résultat = somme des éléments de V aux indices contenus dans Vind}
+			resultat : integer := 0;
+		begin
+			for i in Vind'range loop
+				resultat := resultat + V(Vind(i)).valeur;
+			end loop;
+			return resultat;
+		end somme;
+
+	begin
+		for i in 3..7 loop
+			declare
+				Vind : TV_Ent(0..i-1);
+				f : text_io.file_type;
+			begin
+				create(f, OUT_FILE, "resultat" & Integer'image(i)(2));
+
+				for j in Vind loop -- initialisation d'un sous-vecteur d'indices de V
+					Vind(j) := V'first+j;
+				end loop;
+
+				loop
+					if somme(V, Vind) = 33 then
+						write(f, V(Vind).nom) -- ajouter boucle pour prendre tous les noms 
+					end if;
+				end loop;
+
+				close(f);
+			end;
+		end loop;
+	end trouveSol;
+
+	procedure creeFicsol(V : in TV_Gaudi; fsol : in out text_io.file_type) is
+	-- {f ouvert en écriture, V Trié par nom de case}
 	--	=> 	{fsol contient toutes les combinaisons gagnantes et est structuré selon le format défini (cf. sujet)}
+	begin
+	end creeFicsol;
 
 	function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural;
-	-- {fsol ouvert, f- = <>} => {r�sultat = nombre de combinaisons en nbcases dans fsol}
+	-- {fsol ouvert, f- = <>} => {résultat = nombre de combinaisons en nbcases dans fsol}
 
 	function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
 	-- {fsol ouvert, f- = <>}
-	-- => {r�sultat = cha�ne repr�sentant la solution numsol lue dans fsol pour une combinaison de nbcases}
+	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
 
 	function est_contigue(sol : in string) return boolean;
-		--{sol repr�sente une solution} => {r�sultat = vrai si sol est une solution contig�e}
+		--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
 
 	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
-	-- {fsol ouvert} => {fcont contient les combinaisons contig�es de fsol et est structur� de la m�me fa�on}
+	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
 
 end p_combinaisons;
