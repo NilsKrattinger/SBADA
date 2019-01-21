@@ -6,8 +6,20 @@ package body p_combinaisons is
 
   ---- Recherche et affichage des combinaisons --------------------------------------------------------------------
 
-	procedure CreeVectGaudi(f : in out p_cases_IO.file_type; V : out TV_Gaudi);
+	procedure CreeVectGaudi(f : in out p_cases_IO.file_type; V : out TV_Gaudi) is
 	-- {f ouvert, V de taille suffisante} => {le contenu de f a �t� copi� dans V}
+		i : integer;
+		tmp := TR_Case;
+		begin
+			reset(f, IN_FILE);
+			i := 0;
+			while not end_of_file(f) loop
+				read(f,Tmp)
+				v(i) := Tmp
+				i := i+1
+			end loop;
+
+	end CreeVectGaudi;
 
 	procedure TriVectGaudi(V : in out TV_Gaudi);
 	-- {} => {V est tri� par nom de case}
