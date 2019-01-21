@@ -36,10 +36,12 @@ procedure gauditext is
 begin
   loop
     open(f, IN_FILE, "CarreGaudi");
-    open(fout, IN_FILE, "fout.txt");
-
     CreeVectGaudi(f, V);
     triVectGaudi(V);
+
+    create(fout, OUT_FILE, "fout.txt");
+    creeFicsol(V, fout);
+    reset(fout, IN_FILE);
 
     put("Entrez le nombre d'éléments de la solution : ");
     get(nbelem);
