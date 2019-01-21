@@ -200,8 +200,8 @@ package body p_combinaisons is
 		contig := (others => false);
 		for i in 1..nbelems loop
 			if not contig(i) then
-				for j in i+1..nbelems loop
-					if verifContig(sol(i..i+1), sol(j..j+1)) then
+				for j in 1..nbelems loop
+					if verifContig(sol(i*2-1..i*2), sol(j*2-1..j*2)) and i /= j then
 						contig(i) := true;
 						contig(j) := true;
 					end if;
@@ -225,6 +225,33 @@ package body p_combinaisons is
 
 	taille : integer := 3;
 	nblignesCat : integer := 0;
+
+	procedure copieFichTemp is
+	begin
+		reset(ftmp, IN_FILE);
+		while not end_of_file(ftmp) loop
+			skip_line(ftmp);
+			nblignesCat := nblignesCat + 1;
+		end loop;
+
+		put(fcont, taille, 1);
+		put(fcont, ' ');
+		put(fcont, nblignesCat, 1);
+		new_line(fcont);
+
+		reset(ftmp, IN_FILE);
+		while not end_of_file(ftmp) loop
+			get_line(ftmp, tmp, nb);
+			put(fcont, tmp(1..nb));
+			new_line(fcont);
+		end loop;
+
+		new_page(fcont);
+		reset(ftmp, OUT_FILE);
+		taille := taille + 1;
+		nblignesCat := 0;
+	end copieFichTemp;
+
 	begin
 		reset(fsol,IN_FILE);
 		reset(fcont,OUT_FILE);
@@ -237,31 +264,11 @@ package body p_combinaisons is
 					put_line(ftmp,tmp(1..nb));
 				end if;
 			else
-				reset(ftmp, IN_FILE);
-				while not end_of_file(ftmp) loop
-					skip_line(ftmp);
-					nblignesCat := nblignesCat + 1;
-				end loop;
-
-				put(fcont, taille, 1);
-				put(fcont, ' ');
-				put(fcont, nblignesCat, 1);
-				new_line(fcont);
-
-				reset(ftmp, IN_FILE);
-				while not end_of_file(ftmp) loop
-					get_line(ftmp, tmp, nb);
-					put(fcont, tmp(1..nb));
-					new_line(fcont);
-				end loop;
-
-				new_page(fcont);
-				reset(ftmp, OUT_FILE);
-				taille := taille + 1;
-				nblignesCat := 0;
+				copieFichTemp;
 			end if;
 		end loop;
 
+		copieFichTemp;
 		delete(ftmp);
 	end creeFicsolcont;
 
