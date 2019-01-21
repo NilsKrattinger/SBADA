@@ -42,7 +42,7 @@ package p_combinaisons is
 	function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural;
 	-- {fsol ouvert, f- = <>} => {résultat = nombre de combinaisons en nbcases dans fsol}
 
-	--function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
+	function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
 	-- {fsol ouvert, f- = <>}
 	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
 

@@ -7,6 +7,7 @@ procedure test is
 
   fout: text_io.file_type;
   nbcases: T_nbcases;
+  numcomb: integer;
 begin
   open(f, IN_FILE, "CarreGaudi");
 
@@ -20,6 +21,12 @@ begin
   put("Entrez le nb de cases : ");
   get(nbcases);
   put(nbCombi(fout, nbcases));
+
+  reset(fout, IN_FILE);
+  new_line;
+  put("Entrez le numéro de combinaison : ");
+  get(numcomb);
+  put(combi(fout, nbcases, numcomb));
   put_line(" solutions.");
 
   close(fout);

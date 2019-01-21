@@ -152,7 +152,8 @@ package body p_combinaisons is
 	-- {fsol ouvert, f- = <>}
 	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
 		nbSkip : integer := nbcases - 3;
-		val : integer;
+		val, nb : integer;
+		str : string(1..14);
 	begin
 		while nbSkip > 0 loop
 			skip_page(fsol);
@@ -161,14 +162,17 @@ package body p_combinaisons is
 
 		get(fsol, val);
 		get(fsol, val);
+
 		if numsol > val then
 			return "Pas de sol n°" & Integer'image(numsol);
 		else
 			nbSkip := numsol;
 			while nbSkip > 0 loop
 				skip_line(fsol);
-				nbSkip := nbSkip - 1; -- TODO: À TESTER
+				nbSkip := nbSkip - 1;
 			end loop;
+			get_line(fsol, str, nb);
+			return str(1..nb);
 		end if;
 
 	end combi;
