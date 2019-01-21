@@ -30,23 +30,26 @@ package p_combinaisons is
 	-- {f ouvert, V de taille suffisante} => {le contenu de f a été copié dans V}
 
 	procedure triVectGaudi(V : in out TV_Gaudi);
-	-- {} => {V est trié par nom de case}
+		-- {} => {V est trié par nom de case}
+
+	procedure trouveSol(V : in TV_Gaudi);
+	-- {} => {trouve les solutions et les stocke dans des fichiers temporaires}
 
 	procedure creeFicsol(V : in TV_Gaudi; fsol : in out text_io.file_type);
 	-- {f ouvert en écriture, V Trié par nom de case}
 	--	=> 	{fsol contient toutes les combinaisons gagnantes et est structuré selon le format défini (cf. sujet)}
 
-	function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural;
+	--function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural;
 	-- {fsol ouvert, f- = <>} => {résultat = nombre de combinaisons en nbcases dans fsol}
 
-	function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
+	--function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
 	-- {fsol ouvert, f- = <>}
 	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
 
-	function est_contigue(sol : in string) return boolean;
+	--function est_contigue(sol : in string) return boolean;
 		--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
 
-	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
+	--procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
 
 end p_combinaisons;
