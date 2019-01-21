@@ -226,7 +226,7 @@ package body p_combinaisons is
 		reset(fcont,OUT_FILE);
 		while not end_of_file(fsol) loop
 			get_line(fsol,tmp,nb);
-			if tmp(1) in 'A'..'D' and then est_contigue(tmp(1..nb)) then
+			if tmp(1) in T_col'range and then est_contigue(tmp(1..nb)) then
 				put_line(fcont,tmp(1..nb));
 			end if;
 		end loop;
