@@ -8,6 +8,7 @@ procedure test is
   fout: text_io.file_type;
   nbcases: T_nbcases;
   numcomb: integer;
+
 begin
   open(f, IN_FILE, "CarreGaudi");
 
@@ -32,4 +33,5 @@ begin
   close(fout);
 
   close(f);
+
 end test;

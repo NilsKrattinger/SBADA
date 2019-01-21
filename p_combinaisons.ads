@@ -46,8 +46,8 @@ package p_combinaisons is
 	-- {fsol ouvert, f- = <>}
 	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
 
-	--function est_contigue(sol : in string) return boolean;
-		--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
+	function est_contigue(sol : in string) return boolean;
+	--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
 
 	--procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
