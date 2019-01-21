@@ -9,9 +9,8 @@ procedure gauditext is
     correct: boolean := false;
   begin
     while not correct loop
-      skip_line;
       get_line(entree, taille);
-    if taille = 5 then skip_line; end if;
+      if taille = 5 then skip_line; end if;
       if To_Lower(entree(1..taille)) in "oui" | "yes" | "o" | "y" | "1" | "vrai" | "true" then
         resultat := true;
         correct := true;
@@ -30,11 +29,10 @@ procedure gauditext is
   V: TV_Gaudi(1..16);
 
   nbelem: integer;
-  fout: text_io.file_type;
+  fout, foutcont: text_io.file_type;
 
-  continue : boolean;
+  continue, contigu : boolean;
 begin
-  loop
     open(f, IN_FILE, "CarreGaudi");
     CreeVectGaudi(f, V);
     triVectGaudi(V);
@@ -43,17 +41,30 @@ begin
     creeFicsol(V, fout);
     reset(fout, IN_FILE);
 
+    create(foutcont, OUT_FILE, "foutcont.txt");
+    creeFicsolcont(fout, foutcont);
+
+  loop
     put("Entrez le nombre d'éléments de la solution : ");
-    get(nbelem);
+    get(nbelem); skip_line;
+
+    put("Voulez-vous n'afficher que les solutions contigües ? ");
+    contigu := getUserBool;
 
     afficheGrille(V);
-    afficheSolution(nbelem, fout);
-    close(fout);
-    close(f);
+    if contigu then
+      afficheSolution(nbelem, foutcont);
+    else
+      afficheSolution(nbelem, fout);
+    end if;
 
     new_line;
     put("Voulez-vous continuer ? ");
     continue := getUserBool;
     exit when not continue;
   end loop;
+
+  close(foutcont);
+  close(fout);
+  close(f);
 end gauditext;

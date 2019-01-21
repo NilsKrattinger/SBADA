@@ -219,17 +219,50 @@ package body p_combinaisons is
 
 	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) is
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
+	ftmp : text_io.file_type;
 	tmp : string(1..15);
 	nb : integer;
+
+	taille : integer := 3;
+	nblignesCat : integer := 0;
 	begin
 		reset(fsol,IN_FILE);
 		reset(fcont,OUT_FILE);
+		create(ftmp, OUT_FILE, "fconttemp.txt");
+		skip_line(fsol);
 		while not end_of_file(fsol) loop
 			get_line(fsol,tmp,nb);
-			if tmp(1) in T_col'range and then est_contigue(tmp(1..nb)) then
-				put_line(fcont,tmp(1..nb));
+			if tmp(1) in T_col'range then
+				if est_contigue(tmp(1..nb)) then
+					put_line(ftmp,tmp(1..nb));
+				end if;
+			else
+				reset(ftmp, IN_FILE);
+				while not end_of_file(ftmp) loop
+					skip_line(ftmp);
+					nblignesCat := nblignesCat + 1;
+				end loop;
+
+				put(fcont, taille, 1);
+				put(fcont, ' ');
+				put(fcont, nblignesCat, 1);
+				new_line(fcont);
+
+				reset(ftmp, IN_FILE);
+				while not end_of_file(ftmp) loop
+					get_line(ftmp, tmp, nb);
+					put(fcont, tmp(1..nb));
+					new_line(fcont);
+				end loop;
+
+				new_page(fcont);
+				reset(ftmp, OUT_FILE);
+				taille := taille + 1;
+				nblignesCat := 0;
 			end if;
 		end loop;
+
+		delete(ftmp);
 	end creeFicsolcont;
 
 
