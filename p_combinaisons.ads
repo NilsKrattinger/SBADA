@@ -32,14 +32,14 @@ package p_combinaisons is
 	procedure triVectGaudi(V : in out TV_Gaudi);
 		-- {} => {V est trié par nom de case}
 
-	procedure trouveSol(V : in TV_Gaudi);
+	procedure trouveSol(V : in TV_Gaudi; Vcompte : in out TV_Ent);
 	-- {} => {trouve les solutions et les stocke dans des fichiers temporaires}
 
 	procedure creeFicsol(V : in TV_Gaudi; fsol : in out text_io.file_type);
 	-- {f ouvert en écriture, V Trié par nom de case}
 	--	=> 	{fsol contient toutes les combinaisons gagnantes et est structuré selon le format défini (cf. sujet)}
 
-	--function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural;
+	function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural;
 	-- {fsol ouvert, f- = <>} => {résultat = nombre de combinaisons en nbcases dans fsol}
 
 	--function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;

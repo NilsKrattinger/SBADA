@@ -48,7 +48,7 @@ package body p_combinaisons is
     end loop;
   end triVectGaudi;
 
-	procedure trouveSol(V : in TV_Gaudi) is
+	procedure trouveSol(V : in TV_Gaudi; Vcompte : in out TV_Ent) is
 	-- {} => {trouve les solutions et les stocke dans des fichiers temporaires}
 
 		function somme(V : in TV_Gaudi; Vind : in TV_Ent) return integer is
@@ -62,6 +62,7 @@ package body p_combinaisons is
 			return resultat;
 		end somme;
 	begin
+		Vcompte := (others => 0);
 		for i in 3..7 loop
 			declare
 				Vind : TV_Ent(0..i-1);
@@ -76,6 +77,7 @@ package body p_combinaisons is
 				end loop;
 				loop
 					if somme(V, Vind) = 33 then
+						Vcompte(i) := Vcompte(i) + 1;
 						for j in Vind'range loop
 							put(g, V(Vind(j)).nom);
 						end loop;
@@ -108,20 +110,71 @@ package body p_combinaisons is
 	procedure creeFicsol(V : in TV_Gaudi; fsol : in out text_io.file_type) is
 	-- {f ouvert en écriture, V Trié par nom de case}
 	--	=> 	{fsol contient toutes les combinaisons gagnantes et est structuré selon le format défini (cf. sujet)}
+		Vcompte : TV_Ent(3..7);
+		sol : string(1..15);
+		nb: integer;
 
+		g : text_io.file_type;
 	begin
-		null;
+		reset(fsol, OUT_FILE);
+		trouveSol(V, Vcompte);
+		for i in 3..7 loop
+			put(fsol, i, 1);
+			put(fsol, ' ');
+			put(fsol, Vcompte(i), 1);
+			new_line(fsol);
+			open(g, IN_FILE, "resultat" & Integer'image(i)(2));
+			while not end_of_file(g) loop
+				get_line(g, sol, nb);
+				put_line(fsol, sol(1..nb));
+			end loop;
+			delete(g);
+			new_page(fsol);
+		end loop;
 	end creeFicsol;
 
-	--function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural is
+	function nbCombi(fsol : in text_io.file_type; nbcases : in T_nbcases) return natural is
 	-- {fsol ouvert, f- = <>} => {résultat = nombre de combinaisons en nbcases dans fsol}
+		nbSkip : integer := nbcases - 3;
+		val : integer;
+	begin
+		while nbSkip > 0 loop
+			skip_page(fsol);
+			nbSkip := nbSkip - 1;
+		end loop;
 
-	--function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string;
+		get(fsol, val);
+		get(fsol, val);
+		return val;
+	end nbCombi;
+
+	function combi(fsol : in text_io.file_type; nbcases : in T_nbcases; numsol : in positive) return string is
 	-- {fsol ouvert, f- = <>}
 	-- => {résultat = chaîne représentant la solution numsol lue dans fsol pour une combinaison de nbcases}
+		nbSkip : integer := nbcases - 3;
+		val : integer;
+	begin
+		while nbSkip > 0 loop
+			skip_page(fsol);
+			nbSkip := nbSkip - 1;
+		end loop;
+
+		get(fsol, val);
+		get(fsol, val);
+		if numsol > val then
+			return "Pas de sol n°" & Integer'image(numsol);
+		else
+			nbSkip := numsol;
+			while nbSkip > 0 loop
+				skip_line(fsol);
+				nbSkip := nbSkip - 1; -- TODO: À TESTER
+			end loop;
+		end if;
+
+	end combi;
 
 	--function est_contigue(sol : in string) return boolean;
-		--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
+	--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
 
 	--procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
