@@ -49,7 +49,7 @@ package p_combinaisons is
 	--function est_contigue(sol : in string) return boolean;
 		--{sol représente une solution} => {résultat = vrai si sol est une solution contigüe}
 
-	--procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
+	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
 
 end p_combinaisons;
