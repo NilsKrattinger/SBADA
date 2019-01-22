@@ -1,5 +1,6 @@
 with p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed;
-use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed;
+use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, p_combinaisons.p_cases_io;
+
 
 package body p_vue_graph is
 
@@ -17,11 +18,18 @@ package body p_vue_graph is
     end if;
   end GetElement;
 
-  procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural; V: in TV_Gaudi) is
+  procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural) is
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
     textX, textY: natural;
     P : TA_Element;
+    f: p_cases_io.file_type;
+    V: TV_Gaudi(1..16);
   begin
+    open(f, IN_FILE, "CarreGaudi");
+    CreeVectGaudi(f, V);
+    triVectGaudi(V);
+    close(f);
+
     ajouterTexte(fen, "fond_grille", "", x, y, 400, 400);
     changerCouleurFond(fen, "fond_grille", FL_BLACK);
 
@@ -35,7 +43,7 @@ package body p_vue_graph is
     end loop;
   end afficherGrille;
 
-  procedure accueil is
+  procedure fenetreaccueil is
     fenetre : TR_Fenetre;
   begin
     initialiserFenetres;
@@ -56,7 +64,27 @@ package body p_vue_graph is
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
-  end accueil;
+  end fenetreaccueil;
+
+  procedure fenetreSolutions is
+   fenetre : TR_Fenetre;
+  begin
+    initialiserFenetres;
+    fenetre:= DebutFenetre("Solutions",500,650);
+    afficherGrille(fenetre, 50,50);
+    ajouterTexte(fenetre,"Solution","Solution " & "X" &" / " & "Y",50,500,100,30);
+    ajouterTexte(fenetre,"ZoneSolution","AXBXCXDX",200,500,200,30);
+    ajouterBouton(fenetre, "prec", "Precedante", 50 , 550 , 100 , 30);
+    ajouterBouton(fenetre, "suiv", "Suivante", 350 , 550 , 100 , 30);
+    ajouterBouton(fenetre, "Retour", "retour", 200 , 600 , 100 , 30);
+    finFenetre(fenetre);
+    montrerFenetre(fenetre);
+    if attendreBouton(fenetre) /= "Yolo" then
+      CacherFenetre(fenetre);
+    end if;
+
+
+  end fenetreSolutions;
 
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre) is
 
@@ -69,7 +97,7 @@ package body p_vue_graph is
       nbCasesSolution := integer'value(elem);
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     elsif Elem in "Contigue" | "Normal" then
-      --fenetreJeu(Elem,fenetre)
+      fenetreSolutions;
       Null;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
@@ -78,5 +106,10 @@ package body p_vue_graph is
     end if;
 
   end appuiBoutonAccueil;
+
+
+
+
+
 
 end p_vue_graph;

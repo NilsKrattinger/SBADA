@@ -4,10 +4,10 @@ use  p_fenbase, p_combinaisons;
 package p_vue_graph is
   nbCasesSolution : integer;
 
-  procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural; V: in TV_Gaudi);
+  procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
 
-  procedure accueil;
+  procedure fenetreaccueil;
 
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre);
 
