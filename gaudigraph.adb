@@ -4,6 +4,6 @@ with p_esiut; use p_esiut;
 procedure gaudidaph is
 
 begin
-
+  Acceuil;
 
 end gaudidaph;
