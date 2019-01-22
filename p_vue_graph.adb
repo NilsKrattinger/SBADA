@@ -72,15 +72,15 @@ package body p_vue_graph is
     initialiserFenetres;
     fenetre:= DebutFenetre("Solutions",500,650);
     afficherGrille(fenetre, 50,50);
-    ajouterTexte(fenetre,"Solution","Solution " & "X" &" / " & "Y",50,500,100,30);
-    ajouterTexte(fenetre,"ZoneSolution","AXBXCXDXBXCXDX",200,500,200,30);
+    ajouterTexte(fenetre,"Solution","Solution " & "112" &" / " & "133",50,500,200,30);
+    ajouterTexte(fenetre,"ZoneSolution","AXBXCXDXBXCXDX",250,500,200,30);
     ajouterBouton(fenetre, "prec", "Precedante", 50 , 550 , 100 , 30);
     ajouterBouton(fenetre, "suiv", "Suivante", 350 , 550 , 100 , 30);
     ajouterBouton(fenetre, "Retour", "retour", 200 , 600 , 100 , 30);
-    changerTailleTexte(fenetre, Solution ,FL_MEDIUM_SIZE);
-    changerStyleTexte(fenetre, Solution, FL_BOLD_STYLE);
-    changerTailleTexte(fenetre, ZoneSolution ,FL_MEDIUM_SIZE);
-    changerStyleTexte(fenetre, ZoneSolution, FL_BOLD_STYLE);
+    changerTailleTexte(fenetre, "Solution" ,FL_MEDIUM_SIZE);
+    changerStyleTexte(fenetre, "Solution", FL_BOLD_STYLE);
+    changerTailleTexte(fenetre, "ZoneSolution" ,FL_MEDIUM_SIZE);
+    changerStyleTexte(fenetre, "ZoneSolution", FL_BOLD_STYLE);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     if attendreBouton(fenetre) /= "Yolo" then
