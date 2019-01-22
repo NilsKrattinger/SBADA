@@ -1,9 +1,9 @@
 with p_combinaisons; use p_combinaisons;
 with p_vue_graph; use p_vue_graph;
 with p_esiut; use p_esiut;
-procedure gaudidaph is
+procedure gaudigraph is
 
 begin
-  Acceuil;
+  accueil;
 
-end gaudidaph;
+end gaudigraph;
