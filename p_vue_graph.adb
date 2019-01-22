@@ -96,9 +96,12 @@ package body p_vue_graph is
       changerCouleurTexte(fenetre,Elem , FL_DOGERBLUE);
       nbCasesSolution := integer'value(elem);
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
-    elsif Elem in "Contigue" | "Normal" then
+    elsif Elem = "Contigue" then
       fenetreSolutions;
-      Null;
+      open(fichierSolution, IN_FILE, "foutcont.txt");
+    elsif Elem = "Normal" then
+      fenetreSolutions;
+      open(fichierSolution, IN_FILE, "fout.txt");
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
