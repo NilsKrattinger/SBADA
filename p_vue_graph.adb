@@ -51,13 +51,8 @@ package body p_vue_graph is
     ajouterBouton(fenetre, "Normal", "Toutes les solutions", 265 , 375 , 200 , 50);
     ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 450 , 100 , 50);
     ajouterTexte(fenetre, "Textintro", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,100,400,20);
-<<<<<<< HEAD
     ajouterTexte(fenetre, "Textintro2", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,120,400,20);
     ajouterTexte(fenetre, "Textintro3", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,140,400,20);
-=======
-    ajouterTexte(fenetre, "Textintro2", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,112,400,20);
-    ajouterTexte(fenetre, "Textintro3", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,124,400,20);
->>>>>>> 53c899f26ed982dc446d7b6b29080ddbed5ca6ae
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
