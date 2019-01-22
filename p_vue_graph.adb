@@ -114,6 +114,35 @@ package body p_vue_graph is
 
   end appuiBoutonAccueil;
 
+  procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre is
+
+  begin
+    if Elem = "prec" then
+      if combinaisonAct = 1 then
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      else
+        combinaisonAct := combinaisonAct - 1;
+        --act
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end if;
+    elsif Elem = "suiv" then
+      if combinaisonAct = nbCombinaisons then
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      else
+        combinaisonAct := combinaisonAct + 1;
+        --act
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+    elsif Elem = "retour" then
+      CacherFenetre(fenetre);
+      close(fsol);
+    else
+      appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+    end if;
+
+
+  end appuiBoutonSolution;
+
+
 
 
 
