@@ -1,9 +1,11 @@
-with p_combinaisons; use p_combinaisons;
-with p_vue_graph; use p_vue_graph;
-with p_esiut; use p_esiut;
+with p_combinaisons, p_fenbase, p_vue_graph;
+use  p_combinaisons, p_fenbase, p_vue_graph;
+
+
 procedure gaudigraph is
 
 begin
+  initialiserFenetres;
   fenetreaccueil;
 
 end gaudigraph;

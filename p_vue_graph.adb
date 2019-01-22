@@ -1,5 +1,5 @@
-with p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed;
-use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, p_combinaisons.p_cases_io;
+with p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io;
+use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io;
 
 
 package body p_vue_graph is
@@ -46,8 +46,7 @@ package body p_vue_graph is
   procedure fenetreaccueil is
     fenetre : TR_Fenetre;
   begin
-    initialiserFenetres;
-    fenetre:= DebutFenetre("Acceuil",500,500);
+    fenetre:= DebutFenetre("Accueil",500,500);
     for i in 3..7 loop
       ajouterBouton(fenetre, integer'image(i)(2..2),integer'image(i)(2..2), 75+(75*(i-3)) , 300, 50, 50);
       changerTailleTexte(fenetre, integer'image(i)(2..2),FL_MEDIUM_SIZE);
@@ -58,9 +57,10 @@ package body p_vue_graph is
     ajouterBouton(fenetre, "Contigue", "Solutions contigue", 35 , 375 , 200 , 50);
     ajouterBouton(fenetre, "Normal", "Toutes les solutions", 265 , 375 , 200 , 50);
     ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 450 , 100 , 50);
-    ajouterTexte(fenetre, "Textintro", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,100,400,20);
-    ajouterTexte(fenetre, "Textintro2", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,120,400,20);
-    ajouterTexte(fenetre, "Textintro3", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,140,400,20);
+    ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50,100,400,30);
+    ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50,130,400,30);
+    ajouterTexte(fenetre, "Textintro3", "solution, et choisir de ne consulter que les solutions contigues. ", 50,160,400,30);
+    ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220,210,400,30);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
@@ -69,33 +69,32 @@ package body p_vue_graph is
   procedure fenetreSolutions is
    fenetre : TR_Fenetre;
   begin
-    initialiserFenetres;
     fenetre:= DebutFenetre("Solutions",500,650);
     afficherGrille(fenetre, 50,50);
     ajouterTexte(fenetre,"Solution","Solution X/Y",50,500,200,30);
     ajouterTexte(fenetre,"ZoneSolution","AXBXCXDXBXCXDX",250,500,200,30);
-    ajouterBouton(fenetre, "prec", "Precedante", 50 , 550 , 100 , 30);
+    ajouterBouton(fenetre, "prec", "Precedente", 50 , 550 , 100 , 30);
     ajouterBouton(fenetre, "suiv", "Suivante", 350 , 550 , 100 , 30);
-    ajouterBouton(fenetre, "Retour", "retour", 200 , 600 , 100 , 30);
+    ajouterBouton(fenetre, "retour", "Retour", 200 , 600 , 100 , 30);
     changerTailleTexte(fenetre, "Solution" ,FL_MEDIUM_SIZE);
     changerStyleTexte(fenetre, "Solution", FL_BOLD_STYLE);
     changerTailleTexte(fenetre, "ZoneSolution" ,FL_MEDIUM_SIZE);
     changerStyleTexte(fenetre, "ZoneSolution", FL_BOLD_STYLE);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
-    if attendreBouton(fenetre) /= "Yolo" then
-      CacherFenetre(fenetre);
-    end if;
-
+    combinaisonAct := 1;
+    actualisationInfos(fenetre, 1);
+    appuiBoutonSolution(attendreBouton(fenetre), fenetre);
 
   end fenetreSolutions;
 
-  procedure ouvreFenetreSolutions(nomFichier: in string) is
+  procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
   begin
-    fenetreSolutions;
     open(fichierSolution, IN_FILE, nomFichier);
     nbCombinaisons := nbCombi(fichierSolution, nbCasesSolution);
     reset(fichierSolution, IN_FILE);
+    cacherFenetre(fenetre);
+    fenetreSolutions;
   end ouvreFenetreSolutions;
 
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre) is
@@ -109,9 +108,9 @@ package body p_vue_graph is
       nbCasesSolution := integer'value(elem);
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     elsif Elem = "Contigue" then
-      ouvreFenetreSolutions("foutcont.txt");
+      ouvreFenetreSolutions("foutcont.txt", fenetre);
     elsif Elem = "Normal" then
-      ouvreFenetreSolutions("fout.txt");
+      ouvreFenetreSolutions("fout.txt", fenetre);
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
@@ -120,15 +119,50 @@ package body p_vue_graph is
 
   end appuiBoutonAccueil;
 
-  procedure actualisationInfos(fen: in TR_Fenetre; combinaisonOld: integer) is
-  -- {} => {Actualisation des informations pour la solution nbSol}
+  procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre) is
+
   begin
+    if Elem = "prec" then
+      if combinaisonAct = 1 then
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      else
+        combinaisonAct := combinaisonAct - 1;
+        actualisationInfos(fenetre, combinaisonAct + 1);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end if;
+    elsif Elem = "suiv" then
+      if combinaisonAct = nbCombinaisons then
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      else
+        combinaisonAct := combinaisonAct + 1;
+        actualisationInfos(fenetre, combinaisonAct - 1);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end if;
+    elsif Elem = "retour" then
+      cacherFenetre(fenetre);
+      close(fichierSolution);
+      fenetreAccueil;
+    else
+      appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+    end if;
+
+
+  end appuiBoutonSolution;
+
+  procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer) is
+  -- {} => {Actualisation des informations pour la solution nbSol}
+    ancienneSolution, nouvelleSolution: string(1..nbCasesSolution*2);
+  begin
+    reset(fichierSolution, IN_FILE);
+    ancienneSolution := combi(fichierSolution, nbCasesSolution, combinaisonOld);
+    reset(fichierSolution, IN_FILE);
+    nouvelleSolution := combi(fichierSolution, nbCasesSolution, combinaisonAct);
     changerTexte(fen, "Solution", "Solution" & Integer'image(combinaisonAct) & '/' & Integer'image(nbCombinaisons));
-    changerTexte(fen, "ZoneSolution", combi(fichierSolution, nbCasesSolution, combinaisonAct));
-    actualisationGraph(fen, combi(fichierSolution, nbCasesSolution, combinaisonOld), combi(fichierSolution, nbCasesSolution, combinaisonAct));
+    changerTexte(fen, "ZoneSolution", nouvelleSolution);
+    actualisationGraph(fen, ancienneSolution, nouvelleSolution);
   end actualisationInfos;
 
-  procedure actualisationGraph(fen: in TR_Fenetre; combinaisonOld, combinaisonCurr: in string) is
+  procedure actualisationGraph(fen: in out TR_Fenetre; combinaisonOld, combinaisonCurr: in string) is
   -- {} => {Actualisation de la grille avec la nouvelle combinaison}
   begin
     for i in 1..combinaisonOld'length/2 loop
