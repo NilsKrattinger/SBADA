@@ -3,10 +3,10 @@ with p_combinaisons; use p_combinaisons;
 
 
 package p_vue_text is
-  angle : constant character := '+';
-  ligne : constant character := '-';
-  colonne : constant character := '|';
-  taille : constant integer := 5;
+  ANGLE : constant character := '+';
+  LIGNE : constant character := '-';
+  COLONNE : constant character := '|';
+  TAILLE : constant integer := 5;
 
   procedure afficheLigne(carAngle,carLigne: in character);
   -- {} => {Une nouvelle ligne de la grille est affichée}
