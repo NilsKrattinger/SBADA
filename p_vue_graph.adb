@@ -13,12 +13,14 @@ package body p_vue_graph is
       changerTailleTexte(fenetre, integer'image(i)(2..2),FL_MEDIUM_SIZE);
       changerStyleTexte(fenetre, integer'image(i)(2..2), FL_BOLD_STYLE);
     end loop;
+    nbCasesSolution := 3;
+    changerCouleurTexte(fenetre,"3" , FL_DOGERBLUE);
     ajouterBouton(fenetre, "Contigue", "Solutions contigue", 35 , 375 , 200 , 50);
     ajouterBouton(fenetre, "Normal", "Toutes les solutions", 265 , 375 , 200 , 50);
     ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 450 , 100 , 50);
     ajouterTexte(fenetre, "Textintro", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,100,400,20);
-  --  ajouterTexte(fenetre, "Textintro2", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,112,400,20);
-  --  ajouterTexte(fenetre, "Textintro3", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,124,400,20);
+    ajouterTexte(fenetre, "Textintro2", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,120,400,20);
+    ajouterTexte(fenetre, "Textintro3", "Lorem ipsum dolor sit amet, tempor incididu labore et dolor ", 50,140,400,20);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
