@@ -12,7 +12,7 @@ begin
   triVectGaudi(V);
   close(f);
 
-  initialiserFenetres;
+  accueil;
   fen := debutFenetre("Test", 500, 500);
   afficherGrille(fen, 50, 50, V);
   ajouterBouton(fen, "continuer", "Next", 225, 470, 50, 50);
