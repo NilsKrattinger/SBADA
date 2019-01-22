@@ -5,6 +5,5 @@ procedure gaudidaph is
 
 begin
 
-  Acceuil(70);
 
 end gaudidaph;
