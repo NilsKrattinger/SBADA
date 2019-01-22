@@ -72,7 +72,7 @@ package body p_vue_graph is
     initialiserFenetres;
     fenetre:= DebutFenetre("Solutions",500,650);
     afficherGrille(fenetre, 50,50);
-    ajouterTexte(fenetre,"Solution","Solution " & "112" &" / " & "133",50,500,200,30);
+    ajouterTexte(fenetre,"Solution","Solution X/Y",50,500,200,30);
     ajouterTexte(fenetre,"ZoneSolution","AXBXCXDXBXCXDX",250,500,200,30);
     ajouterBouton(fenetre, "prec", "Precedante", 50 , 550 , 100 , 30);
     ajouterBouton(fenetre, "suiv", "Suivante", 350 , 550 , 100 , 30);
@@ -90,6 +90,14 @@ package body p_vue_graph is
 
   end fenetreSolutions;
 
+  procedure ouvreFenetreSolutions(nomFichier: in string) is
+  begin
+    fenetreSolutions;
+    open(fichierSolution, IN_FILE, nomFichier);
+    nbCombinaisons := nbCombi(fichierSolution, nbCasesSolution);
+    reset(fichierSolution, IN_FILE);
+  end ouvreFenetreSolutions;
+
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre) is
 
   begin --
@@ -101,11 +109,9 @@ package body p_vue_graph is
       nbCasesSolution := integer'value(elem);
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     elsif Elem = "Contigue" then
-      fenetreSolutions;
-      open(fichierSolution, IN_FILE, "foutcont.txt");
+      ouvreFenetreSolutions("foutcont.txt");
     elsif Elem = "Normal" then
-      fenetreSolutions;
-      open(fichierSolution, IN_FILE, "fout.txt");
+      ouvreFenetreSolutions("fout.txt");
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
@@ -114,9 +120,24 @@ package body p_vue_graph is
 
   end appuiBoutonAccueil;
 
+  procedure actualisationInfos(fen: in TR_Fenetre; combinaisonOld: integer) is
+  -- {} => {Actualisation des informations pour la solution nbSol}
+  begin
+    changerTexte(fen, "Solution", "Solution" & Integer'image(combinaisonAct) & '/' & Integer'image(nbCombinaisons));
+    changerTexte(fen, "ZoneSolution", combi(fichierSolution, nbCasesSolution, combinaisonAct));
+    actualisationGraph(fen, combi(fichierSolution, nbCasesSolution, combinaisonOld), combi(fichierSolution, nbCasesSolution, combinaisonAct));
+  end actualisationInfos;
 
+  procedure actualisationGraph(fen: in TR_Fenetre; combinaisonOld, combinaisonCurr: in string) is
+  -- {} => {Actualisation de la grille avec la nouvelle combinaison}
+  begin
+    for i in 1..combinaisonOld'length/2 loop
+      changerCouleurFond(fen, combinaisonOld(i*2-1..i*2), FL_COL1);
+    end loop;
 
-
-
+    for i in 1..combinaisonCurr'length/2 loop
+      changerCouleurFond(fen, combinaisonCurr(i*2-1..i*2), FL_WHEAT);
+    end loop;
+  end;
 
 end p_vue_graph;
