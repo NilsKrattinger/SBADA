@@ -21,8 +21,8 @@ package body p_vue_text is
   -- {} => {La valeur à l'indice ind a été affichée avec sa bordure gauche}
     nbchar : integer := 0;
   begin
-    put(colonne);
-    for i in 1..taille/2 loop
+    put(COLONNE);
+    for i in 1..TAILLE/2 loop
       put(' ');
       nbchar := nbchar + 1;
     end loop;
@@ -30,7 +30,7 @@ package body p_vue_text is
     put(V(ind).valeur, 1);
     nbchar := nbchar + (if V(ind).valeur >= 10 then 2 else 1);
 
-    while nbchar < taille loop
+    while nbchar < TAILLE loop
       put(' ');
       nbchar := nbchar + 1;
     end loop;
@@ -52,18 +52,18 @@ package body p_vue_text is
     new_line;
 
     for i in 1..4 loop
-      afficheLigne(angle, ligne);
-      afficheLigne(colonne, ' '); afficheLigne(colonne, ' ');
+      afficheLigne(ANGLE, LIGNE);
+      afficheLigne(COLONNE, ' '); afficheLigne(COLONNE, ' ');
 
       put(i, 1);
       for j in 0..3 loop -- Affichage ligne avec valeurs
         afficheValeur(V, j * 4 + i);
       end loop;
-      put(colonne); new_line;
+      put(COLONNE); new_line;
 
-      afficheLigne(colonne, ' '); afficheLigne(colonne, ' ');
+      afficheLigne(COLONNE, ' '); afficheLigne(COLONNE, ' ');
     end loop;
-    afficheLigne(angle, ligne);
+    afficheLigne(ANGLE, LIGNE);
   end afficheGrille;
 
 
