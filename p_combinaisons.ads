@@ -63,4 +63,7 @@ package p_combinaisons is
 	procedure resultatExiste(fsol: in out text_io.file_type; sol: in string; resultat: out boolean);
 	-- {fsol ouvert} => {resultat = true si sol est présent dans fsol}
 
+	procedure ordonne(sol: in out string);
+	-- {} => {trie la solution par ordre alphabétique}
+
 end p_combinaisons;

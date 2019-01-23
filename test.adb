@@ -6,7 +6,6 @@ procedure test is
   V: TV_Gaudi(1..16);
 
   fout, foutcont: text_io.file_type;
-
 begin
   open(f, IN_FILE, "CarreGaudi");
 

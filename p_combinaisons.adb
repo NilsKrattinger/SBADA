@@ -306,17 +306,44 @@ package body p_combinaisons is
 
 	procedure resultatExiste(fsol: in out text_io.file_type; sol: in string; resultat: out boolean) is
 	-- {fsol ouvert} => {resultat = true si sol est présent dans fsol}
-		tmp : string(1..15);
-		nb: integer;
+		tmp : string(1..15) := (others => ' ');
+		nb: integer := 1;
 	begin
 		reset(fsol, IN_FILE);
-		loop
+		while not end_of_file(fsol) and tmp(1..nb) /= sol loop
 			get_line(fsol, tmp, nb);
-		exit when end_of_file(fsol) or tmp(1..nb) = sol;
 		end loop;
 
 		resultat := tmp(1..nb) = sol;
 	end resultatExiste;
 
+	procedure permut(a, b: in out string) is -- type des valeurs du vecteur
+	-- {} => {les valeurs de a et b ont été échangées}
+		temp: string(1..2);
+	begin
+		temp := a;
+		a := b;
+		b := temp;
+	end permut;
+
+	procedure ordonne(sol: in out string) is
+	-- {} => {trie la solution par ordre alphabétique}
+	  i : integer := sol'first;
+		j : integer;
+	  permutation: boolean := true;
+	begin
+	  while permutation loop
+	    permutation := false;
+			j := sol'last - 1;
+	    while j >= i+2 loop
+	      if sol(j..j+1) < sol(j-2..j-1) then
+	        permut(sol(j..j+1), sol(j-2..j-1));
+	        permutation := true;
+	      end if;
+				j := j - 2;
+	    end loop;
+	    i := i + 2;
+	  end loop;
+	end ordonne;
 
 end p_combinaisons;
