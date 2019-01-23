@@ -34,8 +34,8 @@ procedure gauditext is
 begin
    fichiersInit(V);
    open(f, IN_FILE, "CarreGaudi");
-   open(fout, OUT_FILE, "fout.txt");
-   open(foutcont ,OUT_FILE,"foutcont.txt");
+   open(fout, IN_FILE, "fout.txt");
+   open(foutcont ,IN_FILE,"foutcont.txt");
   loop
     while not (nbelem in 3..7 )loop
     put("Entrez le nombre d'éléments de la solution : ");
