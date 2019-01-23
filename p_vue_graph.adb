@@ -253,15 +253,8 @@ package body p_vue_graph is
   procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre) is
     begin -- appuiBoutonRegles
       if Elem = "pseudo" or Elem ="valider" then
-      begin
-          pseudo := ConsulterContenu(fenetre,"pseudo");
-          put (pseudo);
-       exception
-        when others =>
-        put("error name");
-        put (pseudo);
-        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
-      end;
+          pseudo(ConsulterContenu(fenetre,"pseudo")'range) := ConsulterContenu(fenetre,"pseudo");
+          cacherFenetre(fenetre);
     else
       appuiBoutonRegles(attendreBouton(fenetre),fenetre);
     end if;
@@ -311,8 +304,9 @@ package body p_vue_graph is
     nbCasesSolution := 0;
     create(fichierJeu, IN_FILE, "solutionsTrouvees");
     open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
+    pseudo := (others => ' ');
+    fenetreRegles;
     fenetreJeu;
-    -- TODO: ouverture fenetre pseudo
   end debutJeu;
 
   function compterPoints return integer is
