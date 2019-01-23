@@ -22,22 +22,47 @@ package body p_vue_text is
     nbchar : integer := 0;
   begin
     put(COLONNE);
-    for i in 1..TAILLE/2 loop
-      put(' ');
-      nbchar := nbchar + 1;
-    end loop;
+    if ind not in V'range then
+      for i in 1..TAILLE loop
+        put(' ');
+      end loop;
+    else
+      for i in 1..TAILLE/2 loop
+        put(' ');
+        nbchar := nbchar + 1;
+      end loop;
 
-    put(V(ind).valeur, 1);
-    nbchar := nbchar + (if V(ind).valeur >= 10 then 2 else 1);
+      put(V(ind).valeur, 1);
+      nbchar := nbchar + (if V(ind).valeur >= 10 then 2 else 1);
 
-    while nbchar < TAILLE loop
-      put(' ');
-      nbchar := nbchar + 1;
-    end loop;
+      while nbchar < TAILLE loop
+        put(' ');
+        nbchar := nbchar + 1;
+      end loop;
+    end if;
   end afficheValeur;
 
-  procedure afficheGrille(V : TV_Gaudi) is
+  procedure afficheGrille(V : TV_Gaudi; S: String) is
   -- {V'length = 16} => {La grille est affichée dans la console}
+    function valeurCorrecte(i,j: integer) return boolean is
+      currCase : string(1..2);
+      ind : integer := 1;
+    begin
+      if S'length = 0 then return true; end if;
+      case j is
+        when 1 => currCase(1) := 'A';
+        when 2 => currCase(1) := 'B';
+        when 3 => currCase(1) := 'C';
+        when 4 => currCase(1) := 'D';
+        when others => null;
+      end case;
+      currCase(2) := Integer'image(i)(2);
+
+      while ind <= S'length/2 and then S(ind*2-1..ind*2) /= currCase loop
+        ind := ind + 1;
+      end loop;
+      return ind <= S'length / 2;
+    end valeurCorrecte;
   begin
     put(' ');
     for c in character range 'A'..'D' loop
@@ -57,7 +82,11 @@ package body p_vue_text is
 
       put(i, 1);
       for j in 0..3 loop -- Affichage ligne avec valeurs
-        afficheValeur(V, j * 4 + i);
+        if valeurCorrecte(i,j+1) then
+          afficheValeur(V, j * 4 + i);
+        else
+          afficheValeur(V, V'first-1);
+        end if;
       end loop;
       put(COLONNE); new_line;
 
