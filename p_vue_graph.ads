@@ -31,19 +31,21 @@ package p_vue_graph is
 
   procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre);
 
+  procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre);
+
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer);
   -- {} => {Actualisation des informations pour la solution nbSol}
 
-  procedure debutJeu(fen: in out TR_Fenetre);
+  procedure debutJeu;
   -- {} => {Lance le jeu}
 
   function compterPoints return integer;
-  -- {} => {résultat = nombre de points du joueur}
+  -- {fichierJeu ouvert} => {résultat = nombre de points du joueur}
 
   procedure enregistrerScore(score: in TR_Score);
   -- {} => {le score a été enregistré dans le fichier de scores}
 
-  procedure finJeu;
+  procedure finJeu(fen: in out TR_Fenetre; abandon: in boolean);
   -- {} => {Finit le jeu}
 
   procedure affichageSol(fen: in out TR_Fenetre; combinaison: in string; coul: in FL_Color);

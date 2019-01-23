@@ -109,7 +109,7 @@ package body p_vue_graph is
     fenetre:= DebutFenetre("Jeu",500,650);
     afficherGrille(fenetre, 50,100);
     ajouterTexte(fenetre,"Txt1","Score : ",50,50,120,30);
-    ajouterTexte(fenetre,"Score","250 Points",170,50,120,30);
+    ajouterTexte(fenetre,"Score","0 Point",170,50,120,30);
     AjouterChamp(fenetre,"SolutionProp","","A1B3C4D5",100,520,300,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
@@ -124,7 +124,7 @@ package body p_vue_graph is
 
     finFenetre(fenetre);
     montrerFenetre(fenetre);
-    appuiBoutonSolution(attendreBouton(fenetre), fenetre);
+    appuiBoutonJeu(attendreBouton(fenetre), fenetre);
 
   end fenetreJeu;
 
@@ -164,7 +164,7 @@ package body p_vue_graph is
         ouvreFenetreSolutions("fout.txt", fenetre);
       end if;
     elsif Elem = "jeu" then
-      fenetreJeu;
+      debutJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
@@ -224,13 +224,17 @@ package body p_vue_graph is
   end appuiBoutonSolution;
 
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
+    pts : integer;
   begin --
-    if Elem = "SolutionProp" or Elem ="valider"then
+    if Elem = "SolutionProp" or Elem ="valider" then
+      verifSol(fenetre, consulterContenu(fenetre, "SolutionProp"));
+      pts := compterPoints;
+      changerTexte(fenetre, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-  elsif Elem = "abandon" then
-    appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-  else
-    appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+    elsif Elem = "abandon" then
+      finJeu(fenetre, true);
+    else
+      appuiBoutonJeu(attendreBouton(fenetre),fenetre);
   end if;
   end appuiBoutonJeu;
 
@@ -257,16 +261,18 @@ package body p_vue_graph is
     end loop;
   end affichageSol;
 
-  procedure debutJeu(fen: in out TR_Fenetre) is
+  procedure debutJeu is
   -- {} => {Lance le jeu}
   begin
     nbCasesSolution := 0;
     create(fichierJeu, IN_FILE, "solutionsTrouvees");
+    open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
+    fenetreJeu;
     -- TODO: ouverture fenetre pseudo
   end debutJeu;
 
   function compterPoints return integer is
-  -- {} => {résultat = nombre de points du joueur}
+  -- {fichierJeu ouvert} => {résultat = nombre de points du joueur}
     sol: string(1..15);
     nb: integer;
     score : integer := 0;
@@ -296,38 +302,44 @@ package body p_vue_graph is
     close(f);
   end enregistrerScore;
 
-  procedure finJeu is
+  procedure finJeu(fen: in out TR_Fenetre; abandon: in boolean) is
   -- {} => {Finit le jeu}
   begin
-    enregistrerScore((pseudo, compterPoints));
+    if not abandon then enregistrerScore((pseudo, compterPoints)); end if;
     delete(fichierJeu);
-    -- TODO: fermer la fenêtre
+    close(fichierSolution);
+    cacherFenetre(fen);
+    fenetreAccueil;
   end finJeu;
 
   procedure verifSol(fen: in out TR_Fenetre; solution: in string) is
   -- {} => {Vérifie si la solution est correcte}
-    estValide: boolean;
+    estValide, dejaTrouve: boolean;
+    combinaison: string := solution;
   begin
-    if nbCasesSolution > 0 then
-      affichageSol(fen, dernier(1..nbCasesSolution*2), FL_COL1);
-    end if;
-    dernier := (others => ' ');
-    dernier(solution'range) := solution;
-    nbCasesSolution := solution'length / 2;
-
-    resultatExiste(fichierSolution, solution, estValide);
-    if estValide then -- la solution existe
-
-      resultatExiste(fichierJeu, solution, estValide);
-      if estValide then -- la solution n'a pas encore été découverte
-        affichageSol(fen, solution, FL_CHARTREUSE);
-        reset(fichierJeu, APPEND_FILE);
-        put_line(fichierJeu, solution);
-      else
-        affichageSol(fen, solution, FL_WHEAT);
+    if combinaison'length > 0 then
+      ordonne(combinaison);
+      if nbCasesSolution > 0 then
+        affichageSol(fen, dernier(1..nbCasesSolution*2), FL_COL1);
       end if;
-    else
-      affichageSol(fen, solution, FL_RED);
+      dernier := (others => ' ');
+      dernier(combinaison'range) := combinaison;
+      nbCasesSolution := combinaison'length / 2;
+      changerContenu(fen, "SolutionProp", "");
+
+      resultatExiste(fichierSolution, combinaison, estValide);
+      if estValide then -- la solution existe
+        resultatExiste(fichierJeu, combinaison, dejaTrouve);
+        if not dejaTrouve then -- la solution n'a pas encore été découverte
+          affichageSol(fen, combinaison, FL_CHARTREUSE);
+          reset(fichierJeu, APPEND_FILE);
+          put_line(fichierJeu, combinaison);
+        else
+          affichageSol(fen, combinaison, FL_WHEAT);
+        end if;
+      else
+        affichageSol(fen, combinaison, FL_TOMATO);
+      end if;
     end if;
   end verifSol;
 
