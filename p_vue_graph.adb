@@ -156,20 +156,20 @@ package body p_vue_graph is
     elsif  Elem = "aller" then
       begin
         combinaisonVoulue := integer'value(ConsulterContenu(fenetre,"ChampNum"));
-        exception
+        combinaisonOld := combinaisonAct;
+        if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
+          actualisationInfos(fenetre,combinaisonAct);
+          appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+        else
+          combinaisonAct := combinaisonVoulue;
+          actualisationInfos(fenetre, combinaisonOld);
+          appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+        end if;
+      exception
         when others =>
           actualisationInfos(fenetre,combinaisonAct);
           appuiBoutonSolution(attendreBouton(fenetre),fenetre);
       end;
-      combinaisonOld := combinaisonAct;
-      if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
-        actualisationInfos(fenetre,combinaisonAct);
-        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
-      else
-        combinaisonAct := combinaisonVoulue;
-        actualisationInfos(fenetre, combinaisonOld);
-        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
-      end if;
     else
       appuiBoutonSolution(attendreBouton(fenetre),fenetre);
     end if;
