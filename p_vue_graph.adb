@@ -188,19 +188,90 @@ package body p_vue_graph is
     ChangerContenu(fen, "ChampNum",  trim(Integer'image(combinaisonAct),BOTH));
     changerTexte(fen, "Y", '/' & Integer'image(nbCombinaisons));
     changerTexte(fen, "ZoneSolution", nouvelleSolution);
-    actualisationGraph(fen, ancienneSolution, nouvelleSolution);
+    affichageSol(fen, ancienneSolution, FL_COL1);
+    affichageSol(fen, nouvelleSolution, FL_WHEAT);
   end actualisationInfos;
 
-  procedure actualisationGraph(fen: in out TR_Fenetre; combinaisonOld, combinaisonCurr: in string) is
-  -- {} => {Actualisation de la grille avec la nouvelle combinaison}
+  procedure affichageSol(fen: in out TR_Fenetre; combinaison: in string; coul: in FL_Color) is
+  -- {} => {Actualisation de la grille avec la solution de couleur coul}
   begin
-    for i in 1..combinaisonOld'length/2 loop
-      changerCouleurFond(fen, combinaisonOld(i*2-1..i*2), FL_COL1);
+    for i in 1..combinaison'length/2 loop
+      changerCouleurFond(fen, combinaison(i*2-1..i*2), coul);
+    end loop;
+  end affichageSol;
+
+  procedure debutJeu(fen: in out TR_Fenetre) is
+  -- {} => {Lance le jeu}
+  begin
+    nbCasesSolution := 0;
+    create(fichierJeu, IN_FILE, "solutionsTrouvees");
+    -- TODO: ouverture fenetre pseudo
+  end debutJeu;
+
+  function compterPoints return integer is
+  -- {} => {résultat = nombre de points du joueur}
+    sol: string(1..15);
+    nb: integer;
+    score : integer := 0;
+  begin
+    reset(fichierJeu, IN_FILE);
+    while not end_of_file(fichierJeu) loop
+      get_line(fichierJeu, sol, nb);
+      case nb/2 is
+        when 3 => score := score + 2;
+        when 4 => score := score + 1;
+        when 5 => score := score + 2;
+        when 6 => score := score + 3;
+        when 7 => score := score + 5;
+        when others => null;
+      end case;
     end loop;
 
-    for i in 1..combinaisonCurr'length/2 loop
-      changerCouleurFond(fen, combinaisonCurr(i*2-1..i*2), FL_WHEAT);
-    end loop;
-  end;
+    return score;
+  end compterPoints;
+
+  procedure enregistrerScore(score: in TR_Score) is
+  -- {} => {le score a été enregistré dans le fichier de scores}
+    f: p_score_io.file_type;
+  begin
+    create(f, APPEND_FILE, "score");
+    write(f, score);
+    close(f);
+  end enregistrerScore;
+
+  procedure finJeu is
+  -- {} => {Finit le jeu}
+  begin
+    enregistrerScore((pseudo, compterPoints));
+    delete(fichierJeu);
+    -- TODO: fermer la fenêtre
+  end finJeu;
+
+  procedure verifSol(fen: in out TR_Fenetre; solution: in string) is
+  -- {} => {Vérifie si la solution est correcte}
+    estValide: boolean;
+  begin
+    if nbCasesSolution > 0 then
+      affichageSol(fen, dernier(1..nbCasesSolution*2), FL_COL1);
+    end if;
+    dernier := (others => ' ');
+    dernier(solution'range) := solution;
+    nbCasesSolution := solution'length / 2;
+
+    resultatExiste(fichierSolution, solution, estValide);
+    if estValide then -- la solution existe
+
+      resultatExiste(fichierJeu, solution, estValide);
+      if estValide then -- la solution n'a pas encore été découverte
+        affichageSol(fen, solution, FL_CHARTREUSE);
+        reset(fichierJeu, APPEND_FILE);
+        put_line(fichierJeu, solution);
+      else
+        affichageSol(fen, solution, FL_WHEAT);
+      end if;
+    else
+      affichageSol(fen, solution, FL_RED);
+    end if;
+  end verifSol;
 
 end p_vue_graph;

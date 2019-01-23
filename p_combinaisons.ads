@@ -60,4 +60,7 @@ package p_combinaisons is
 		-- {V est de taille 16} =>
 		--   {Génère Fout.txt et foutcont.txt contenant respectivement toutes les solutions et les solutions contigües}
 
+	procedure resultatExiste(fsol: in out text_io.file_type; sol: in string; resultat: out boolean);
+	-- {fsol ouvert} => {resultat = true si sol est présent dans fsol}
+
 end p_combinaisons;

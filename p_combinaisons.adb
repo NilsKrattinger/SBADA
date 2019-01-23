@@ -304,5 +304,19 @@ package body p_combinaisons is
     close(foutcont);
   end fichiersInit;
 
+	procedure resultatExiste(fsol: in out text_io.file_type; sol: in string; resultat: out boolean) is
+	-- {fsol ouvert} => {resultat = true si sol est présent dans fsol}
+		tmp : string(1..15);
+		nb: integer;
+	begin
+		reset(fsol, IN_FILE);
+		loop
+			get_line(fsol, tmp, nb);
+		exit when end_of_file(fsol) or tmp(1..nb) = sol;
+		end loop;
+
+		resultat := tmp(1..nb) = sol;
+	end resultatExiste;
+
 
 end p_combinaisons;
