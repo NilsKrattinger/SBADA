@@ -1,5 +1,5 @@
-with p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, X.Strings;
-use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io;
+with p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, X.Strings;
+use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io;
 
 
 package body p_vue_graph is
@@ -229,7 +229,10 @@ package body p_vue_graph is
       end if;
     elsif Elem = "jeu" then
       cacherFenetre(fenetre);
-      debutJeu;
+      debutJeu(contigue);
+      casesClic := (others => ' ');
+      fenetreRegles;
+      fenetreJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
@@ -320,16 +323,18 @@ package body p_vue_graph is
   end ajoutCase;
 
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
-    pts : integer;
+    solutionCorrecte : integer;
     caseClic : string(1..2);
   begin --
     if Elem = "SolutionProp" or Elem ="valider" then
-      verifSol(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH));
-      pts := compterPoints;
-      changerTexte(fenetre, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
+      effacerGrille(fenetre);
+      verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
+      actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
     elsif Elem = "abandon" then
-      finJeu(fenetre, true);
+      finJeu(true);
+      cacherFenetre(fenetre);
+      fenetreAccueil;
     elsif Elem'length = 3
           and Elem(Elem'first) = 'B'
           and Elem(Elem'first + 1) in T_Col'range
@@ -365,97 +370,46 @@ package body p_vue_graph is
     end loop;
   end affichageSol;
 
-  procedure debutJeu is
-  -- {} => {Lance le jeu}
+  procedure effacerGrille(fen: in out TR_Fenetre) is
+  -- {} => {Les solutions affichées sur la grille sont effacées}
   begin
-    nbCasesSolution := 0;
-    create(fichierJeu, IN_FILE, "solutionsTrouvees");
-    open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
-    pseudo := (others => ' ');
-    casesClic := (others => ' ');
-    fenetreRegles;
-    fenetreJeu;
-  end debutJeu;
-
-  function compterPoints return integer is
-  -- {fichierJeu ouvert} => {résultat = nombre de points du joueur}
-    sol: string(1..15);
-    nb: integer;
-    score : integer := 0;
-  begin
-    reset(fichierJeu, IN_FILE);
-    while not end_of_file(fichierJeu) loop
-      get_line(fichierJeu, sol, nb);
-      case nb/2 is
-        when 3 => score := score + 2;
-        when 4 => score := score + 1;
-        when 5 => score := score + 2;
-        when 6 => score := score + 3;
-        when 7 => score := score + 5;
-        when others => null;
-      end case;
-    end loop;
-
-    return score;
-  end compterPoints;
-
-  procedure enregistrerScore(score: in TR_Score) is
-  -- {} => {le score a été enregistré dans le fichier de scores}
-    f: p_score_io.file_type;
-  begin
-    create(f, APPEND_FILE, "score");
-    write(f, score);
-    close(f);
-  end enregistrerScore;
-
-  procedure finJeu(fen: in out TR_Fenetre; abandon: in boolean) is
-  -- {} => {Finit le jeu}
-  begin
-    if not abandon then enregistrerScore((pseudo, compterPoints)); end if;
-    delete(fichierJeu);
-    close(fichierSolution);
-    cacherFenetre(fen);
-    fenetreAccueil;
-  end finJeu;
-
-  procedure verifSol(fen: in out TR_Fenetre; solution: in string) is
-  -- {} => {Vérifie si la solution est correcte}
-    estValide, dejaTrouve: boolean;
-    combinaison: string := solution;
-  begin
-    if combinaison'length > 0 then
-      ordonne(combinaison);
-      if nbCasesSolution > 0 then
-        affichageSol(fen, dernier(1..nbCasesSolution*2), FL_COL1);
-      end if;
-
-      if casesClic(1) /= ' ' then
-        affichageSol(fen, trim(casesClic, BOTH), FL_COL1);
-        casesClic := (others => ' ');
-      end if;
-
-      dernier := (others => ' ');
-      dernier(combinaison'range) := combinaison;
-      nbCasesSolution := combinaison'length / 2;
-      changerContenu(fen, "SolutionProp", "");
-
-      resultatExiste(fichierSolution, combinaison, estValide);
-      if estValide then -- la solution existe
-        resultatExiste(fichierJeu, combinaison, dejaTrouve);
-        if not dejaTrouve then -- la solution n'a pas encore été découverte
-          affichageSol(fen, combinaison, FL_PALEGREEN);
-          reset(fichierJeu, APPEND_FILE);
-          put_line(fichierJeu, combinaison);
-        else
-          affichageSol(fen, combinaison, FL_WHEAT);
-        end if;
-      else
-        affichageSol(fen, combinaison, FL_INDIANRED);
-      end if;
+    if tailleSolution > 0 then
+      affichageSol(fen, dernier(1..tailleSolution), FL_COL1);
     end if;
-    exception
-    when others =>
-      appuiBoutonJeu(attendreBouton(fen),fen);
-  end verifSol;
+
+    if casesClic(1) /= ' ' then
+      affichageSol(fen, trim(casesClic, BOTH), FL_COL1);
+    end if;
+  end effacerGrille;
+
+  procedure actualisationEssai(fen: in out TR_Fenetre; solution: in string; resultat: in integer) is
+  -- {} => {Met à jour la grille avec la solution colorée après un essai dans le jeu}
+    coul: FL_Color;
+    pts: integer;
+    combinaison : string(1..14) := (others => ' ');
+  begin
+    if solution'length <= combinaison'length then
+      combinaison(solution'range) := solution;
+    end if;
+
+    case resultat is
+      when SOLUTION_CORRECTE => coul := FL_PALEGREEN;
+      when SOLUTION_DOUBLON => coul := FL_WHEAT;
+      when SOLUTION_INCORRECTE => coul := FL_INDIANRED;
+      when SOLUTION_INVALIDE =>
+        coul := ancienneCoul;
+        combinaison := (others => ' ');
+        combinaison(1..tailleSolution) := dernier(1..tailleSolution);
+      when others => null;
+    end case;
+    ancienneCoul := coul;
+
+    affichageSol(fen, trim(combinaison, BOTH), coul);
+    changerContenu(fen, "SolutionProp", "");
+    pts := compterPoints;
+    changerTexte(fen, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
+
+    casesClic := (others => ' ');
+  end actualisationEssai;
 
 end p_vue_graph;
