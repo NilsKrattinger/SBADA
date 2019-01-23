@@ -57,6 +57,7 @@ package p_combinaisons is
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
 
 	procedure fichiersInit(V: out TV_Gaudi);
-	--{} => {Genere Fout.txt et foutcont.txt contenants les solutions et le solutions contigües}
+		-- {V est de taille 16} =>
+		--   {Génère Fout.txt et foutcont.txt contenant respectivement toutes les solutions et les solutions contigües}
 
 end p_combinaisons;

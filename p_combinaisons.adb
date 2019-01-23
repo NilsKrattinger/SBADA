@@ -13,7 +13,7 @@ package body p_combinaisons is
 		begin
 			reset(f, IN_FILE);
 			i := V'first;
-			while not end_of_file(f) loop  --On ecrit chauque elements de F dans V
+			while not end_of_file(f) loop  --On écrit chauque élément de F dans V
 				read(f,tmp);
 				V(i) := tmp;
 				i := i+1;
@@ -56,8 +56,8 @@ package body p_combinaisons is
 		-- => {résultat = somme des éléments de V aux indices contenus dans Vind}
 			resultat : integer := 0;
 		begin
-			for i in Vind'range loop --on pacour Vind
-				resultat := resultat + V(Vind(i)).valeur;  --on somme les elements de v d'indice vind(i)'
+			for i in Vind'range loop --on parcourt Vind
+				resultat := resultat + V(Vind(i)).valeur;  --on somme les éléments de v d'indice vind(i)
 			end loop;
 			return resultat;
 		end somme;
@@ -67,12 +67,12 @@ package body p_combinaisons is
 		Vcompte := (others => 0);
 		for i in 3..7 loop
 			declare
-				Vind : TV_Ent(0..i-1); -- Declaration d'un vecteur de I case qui stock les indices
+				Vind : TV_Ent(0..i-1); -- Déclaration d'un vecteur de i cases qui stocke les indices
 				g : text_io.file_type;
 				ind : integer;
 				termine : boolean := false;
 			begin
-				create(g, OUT_FILE, "resultat" & Integer'image(i)(2)); --Cration d'un ficher des Solutions pour I cases
+				create(g, OUT_FILE, "resultat" & Integer'image(i)(2)); --Création d'un fichier de solutions pour i cases
 
 				for j in Vind'range loop -- initialisation d'un sous-vecteur d'indices de V
 					Vind(j) := V'first+j;
@@ -80,7 +80,7 @@ package body p_combinaisons is
 
 
 				loop
-					if somme(V, Vind) = 33 then  --Si la somme = 33 on ecrit notre vecteur d'indices dans notre fiche de solutions
+					if somme(V, Vind) = 33 then  --Si la somme = 33 on écrit notre vecteur d'indices dans notre fichier de solutions
 						Vcompte(i) := Vcompte(i) + 1;
 						for j in Vind'range loop
 							put(g, V(Vind(j)).nom);
@@ -88,12 +88,12 @@ package body p_combinaisons is
 						new_line(g);
 					end if;
 
-					Vind(Vind'last) := Vind(Vind'last) + 1;  --On incremente le vecteur d'indices
+					Vind(Vind'last) := Vind(Vind'last) + 1;  --On incrémente le vecteur d'indices
 					ind := Vind'last;
-					while ind >= Vind'first and not termine loop --mdr je sais pas XDDDDD
-						if Vind(ind) >= V'last + 1 - (Vind'last - ind) then
+					while ind >= Vind'first and not termine loop -- on vérifie la validité de tous les indices, de droite à gauche
+						if Vind(ind) >= V'last + 1 - (Vind'last - ind) then -- condition de validité d'un indice
 							if ind = Vind'first then
-								termine := true;  -- si le dernier idices et a la postions vect'last - indice alors on a fini
+								termine := true;  -- si le dernier indice est à la position vect'last - indice alors on a fini
 							else
 								Vind(ind-1) := Vind(ind-1) + 1;
 								for k in ind..Vind'last loop
@@ -199,13 +199,14 @@ package body p_combinaisons is
 	--{sol représente une solution} => {estContig est vrai si sol est une solution contigüe}
 	begin
 		for i in contigus'range loop
+			 -- on ne vérifie la contiguité qu'avec des éléments pour lesquels on n'a pas trouvé d'élément contigu
 			if not contigus(i) and verifContig(sol(ind*2-1..ind*2), sol(i*2-1..i*2)) then
 				contigus(i) := true;
 				contigueRecur(sol, i, contigus, estContig);
 			end if;
 		end loop;
 
-		if ind = 1 then
+		if ind = 1 then -- on ne change estContig que si on est au début de la pile de récursion
 			estContig := true;
 			for i in contigus'range loop
 				if contigus(i) = false then
@@ -228,38 +229,38 @@ package body p_combinaisons is
 
 	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) is
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
-	ftmp : text_io.file_type;
-	tmp : string(1..15);
-	nb : integer;
+		ftmp : text_io.file_type;
+		tmp : string(1..15);
+		nb : integer;
 
-	taille : integer := 3;
-	nblignesCat : integer := 0;
+		taille : integer := 3;
+		nblignesCat : integer := 0;
 
-	procedure copieFichTemp is
-	begin
-		reset(ftmp, IN_FILE);
-		while not end_of_file(ftmp) loop
-			skip_line(ftmp);
-			nblignesCat := nblignesCat + 1;
-		end loop;
+		procedure copieFichTemp is
+		begin
+			reset(ftmp, IN_FILE);
+			while not end_of_file(ftmp) loop
+				skip_line(ftmp);
+				nblignesCat := nblignesCat + 1;
+			end loop;
 
-		put(fcont, taille, 1);
-		put(fcont, ' ');
-		put(fcont, nblignesCat, 1);
-		new_line(fcont);
-
-		reset(ftmp, IN_FILE);
-		while not end_of_file(ftmp) loop
-			get_line(ftmp, tmp, nb);
-			put(fcont, tmp(1..nb));
+			put(fcont, taille, 1);
+			put(fcont, ' ');
+			put(fcont, nblignesCat, 1);
 			new_line(fcont);
-		end loop;
 
-		new_page(fcont);
-		reset(ftmp, OUT_FILE);
-		taille := taille + 1;
-		nblignesCat := 0;
-	end copieFichTemp;
+			reset(ftmp, IN_FILE);
+			while not end_of_file(ftmp) loop
+				get_line(ftmp, tmp, nb);
+				put(fcont, tmp(1..nb));
+				new_line(fcont);
+			end loop;
+
+			new_page(fcont);
+			reset(ftmp, OUT_FILE);
+			taille := taille + 1;
+			nblignesCat := 0;
+		end copieFichTemp;
 
 	begin
 		reset(fsol,IN_FILE);
@@ -282,10 +283,11 @@ package body p_combinaisons is
 	end creeFicsolcont;
 
 	procedure fichiersInit (V: out TV_Gaudi) is
-		--{V : est taille 16} => {Genere Fout.txt et foutcont.txt contenants les solutions et le solutions contigües}
+		-- {V est de taille 16} =>
+		--   {Génère Fout.txt et foutcont.txt contenant respectivement toutes les solutions et les solutions contigües}
     f: p_cases_io.file_type;
     fout, foutcont: text_io.file_type;
-    
+
   begin
     open(f, IN_FILE, "CarreGaudi");
     CreeVectGaudi(f, V);

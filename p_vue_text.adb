@@ -68,7 +68,7 @@ package body p_vue_text is
 
 
   procedure afficheSolution (nb : in integer; fsol : in out text_io.file_type) is
-  --{fsol ouvert } => {Les solution de fsol a Nb elements sont affichées}
+  --{fsol ouvert } => {Les solution de fsol à nb elements sont affichées}
     Nbchar,nbsol : integer;
     tmp : string(1..15);
     Categorie : boolean := true;

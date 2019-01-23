@@ -18,6 +18,6 @@ package p_vue_text is
   -- {V'length = 16} => {La grille est affichée dans la console}
 
   procedure afficheSolution(nb : in integer; fsol : in out text_io.file_type);
-  --{fsol ouvert } => {Les solution de fsol a Nb elements sont affichées}
+  --{fsol ouvert } => {Les solution de fsol à nb elements sont affichées}
 
 end p_vue_text;
