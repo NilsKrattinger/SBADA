@@ -277,5 +277,25 @@ package body p_combinaisons is
 		delete(ftmp);
 	end creeFicsolcont;
 
+	procedure fichiersInit is
+    f: p_cases_io.file_type;
+    fout, foutcont: text_io.file_type;
+    V: TV_Gaudi(1..16);
+  begin
+    open(f, IN_FILE, "CarreGaudi");
+    CreeVectGaudi(f, V);
+    triVectGaudi(V);
+
+    create(fout, OUT_FILE, "fout.txt");
+    creeFicsol(V, fout);
+    reset(fout, IN_FILE);
+
+    create(foutcont, OUT_FILE, "foutcont.txt");
+    creeFicsolcont(fout, foutcont);
+    close(f);
+    close(fout);
+    close(foutcont);
+  end fichiersInit;
+
 
 end p_combinaisons;

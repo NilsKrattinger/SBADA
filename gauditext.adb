@@ -33,17 +33,7 @@ procedure gauditext is
 
   continue, contigu : boolean;
 begin
-    open(f, IN_FILE, "CarreGaudi");
-    CreeVectGaudi(f, V);
-    triVectGaudi(V);
-
-    create(fout, OUT_FILE, "fout.txt");
-    creeFicsol(V, fout);
-    reset(fout, IN_FILE);
-
-    create(foutcont, OUT_FILE, "foutcont.txt");
-    creeFicsolcont(fout, foutcont);
-
+   fichiersInit;
   loop
     put("Entrez le nombre d'éléments de la solution : ");
     get(nbelem); skip_line;

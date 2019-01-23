@@ -56,4 +56,7 @@ package p_combinaisons is
 	procedure creeFicsolcont(fsol, fcont : in out text_io.file_type) ;
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
 
+	procedure fichiersInit;
+--{} =>{Genere les fichier a prtire }
+
 end p_combinaisons;

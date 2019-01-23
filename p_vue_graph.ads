@@ -7,8 +7,7 @@ package p_vue_graph is
   fichierSolution : text_io.file_type;
   combinaisonAct : integer;
 
-  procedure fichiersInit;
---{} =>{Genere les fichier a prtire }
+
 
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
