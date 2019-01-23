@@ -48,21 +48,25 @@ package body p_vue_graph is
   procedure fenetreaccueil is
     fenetre : TR_Fenetre;
   begin
-    fenetre:= DebutFenetre("Accueil",500,500);
+    fenetre:= DebutFenetre("Accueil",500,600);
     for i in 3..7 loop
       ajouterBouton(fenetre, integer'image(i)(2..2),integer'image(i)(2..2), 75+(75*(i-3)) , 300, 50, 50);
       changerTailleTexte(fenetre, integer'image(i)(2..2),FL_MEDIUM_SIZE);
       changerStyleTexte(fenetre, integer'image(i)(2..2), FL_BOLD_STYLE);
     end loop;
+    contigue := false;
     nbCasesSolution := 3;
     changerCouleurTexte(fenetre,"3" , FL_DOGERBLUE);
-    ajouterBouton(fenetre, "Contigue", "Solutions contigue", 35 , 375 , 200 , 50);
-    ajouterBouton(fenetre, "Normal", "Toutes les solutions", 265 , 375 , 200 , 50);
-    ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 450 , 100 , 50);
+    ajouterBouton(fenetre, "jeu", "Jouer au jeu", 35 , 430, 200 , 50);
+    ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265 , 430 , 200 , 50);
+    ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 505 , 100 , 50);
+    ajouterBouton(fenetre, "Contigue", "Non", 200 , 375 , 50 , 30);
+    ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50,375,150,30);
     ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50,100,400,30);
     ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50,130,400,30);
     ajouterTexte(fenetre, "Textintro3", "solution, et choisir de ne consulter que les solutions contigues. ", 50,160,400,30);
     ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220,210,400,30);
+    changerStyleTexte(fenetre,"Contigue", FL_BOLD_STYLE);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
@@ -98,6 +102,32 @@ package body p_vue_graph is
 
   end fenetreSolutions;
 
+
+  procedure fenetreJeu is
+    fenetre : TR_Fenetre;
+  begin
+    fenetre:= DebutFenetre("Jeu",500,650);
+    afficherGrille(fenetre, 50,100);
+    ajouterTexte(fenetre,"Txt1","Score : ",50,50,120,30);
+    ajouterTexte(fenetre,"Score","250 Points",170,50,120,30);
+    AjouterChamp(fenetre,"SolutionProp","","A1B3C4D5",100,520,300,30);
+    ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
+    ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
+    changerStyleTexte(fenetre,"Score", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"SolutionProp", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"valider", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"Txt1", FL_BOLD_STYLE);
+    changerTailleTexte(fenetre, "Score" ,FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "SolutionProp" ,FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "valider" ,FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "Txt1" ,FL_MEDIUM_SIZE);
+
+    finFenetre(fenetre);
+    montrerFenetre(fenetre);
+    appuiBoutonSolution(attendreBouton(fenetre), fenetre);
+
+  end fenetreJeu;
+
   procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
   begin
     open(fichierSolution, IN_FILE, nomFichier);
@@ -108,7 +138,6 @@ package body p_vue_graph is
   end ouvreFenetreSolutions;
 
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre) is
-
   begin --
     if Elem in "3" | "4" | "5" | "6" | "7" then
       for i in 3..7 loop
@@ -118,9 +147,24 @@ package body p_vue_graph is
       nbCasesSolution := integer'value(elem);
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     elsif Elem = "Contigue" then
-      ouvreFenetreSolutions("foutcont.txt", fenetre);
-    elsif Elem = "Normal" then
-      ouvreFenetreSolutions("fout.txt", fenetre);
+      if contigue then
+        contigue := false;
+        changerTexte(fenetre,"Contigue","Non");
+        changerCouleurTexte(fenetre,"Contigue" , FL_BLACK);
+      else
+        contigue := true;
+        changerTexte(fenetre,"Contigue","Oui");
+        changerCouleurTexte(fenetre,"Contigue" , FL_DOGERBLUE);
+      end if;
+      appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
+    elsif Elem = "Solution" then
+      if contigue then
+        ouvreFenetreSolutions("foutcont.txt", fenetre);
+      else
+        ouvreFenetreSolutions("fout.txt", fenetre);
+      end if;
+    elsif Elem = "jeu" then
+      fenetreJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
@@ -153,29 +197,42 @@ package body p_vue_graph is
       cacherFenetre(fenetre);
       close(fichierSolution);
       fenetreAccueil;
-    elsif  Elem = "aller" then
+    elsif  Elem = "aller" or Elem = "ChampNum" then
       begin
         combinaisonVoulue := integer'value(ConsulterContenu(fenetre,"ChampNum"));
-        combinaisonOld := combinaisonAct;
-        if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
-          actualisationInfos(fenetre,combinaisonAct);
-          appuiBoutonSolution(attendreBouton(fenetre),fenetre);
-        else
-          combinaisonAct := combinaisonVoulue;
-          actualisationInfos(fenetre, combinaisonOld);
-          appuiBoutonSolution(attendreBouton(fenetre),fenetre);
-        end if;
-      exception
+        exception
         when others =>
           actualisationInfos(fenetre,combinaisonAct);
           appuiBoutonSolution(attendreBouton(fenetre),fenetre);
       end;
+      combinaisonOld := combinaisonAct;
+      if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
+        actualisationInfos(fenetre,combinaisonAct);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      else
+        combinaisonAct := combinaisonVoulue;
+        actualisationInfos(fenetre, combinaisonOld);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end if;
     else
       appuiBoutonSolution(attendreBouton(fenetre),fenetre);
     end if;
 
 
+
+
   end appuiBoutonSolution;
+
+  procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
+  begin --
+    if Elem = "SolutionProp" or Elem ="valider"then
+      appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+  elsif Elem = "abandon" then
+    appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+  else
+    appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+  end if;
+  end appuiBoutonJeu;
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer) is
   -- {} => {Actualisation des informations pour la solution nbSol}
