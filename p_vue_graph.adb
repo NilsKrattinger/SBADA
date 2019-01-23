@@ -133,7 +133,7 @@ package body p_vue_graph is
   begin
     fenetre:= DebutFenetre("Regles",500,300);
     ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50,50,150,30);
-    AjouterChamp(fenetre,"pseudo","","ZaxisFR",200,50,160,30);
+    AjouterChamp(fenetre,"pseudo","","Pseudo",200,50,160,30);
     ajouterTexte(fenetre,"Txt2","Juste",50,90,60,50);
     ajouterTexte(fenetre,"Txt3","Double",50,150,60,50);
     ajouterTexte(fenetre,"Txt4","Faux",50,210,60,50);
@@ -191,6 +191,7 @@ package body p_vue_graph is
         ouvreFenetreSolutions("fout.txt", fenetre);
       end if;
     elsif Elem = "jeu" then
+      cacherFenetre(fenetre);
       debutJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
@@ -253,7 +254,17 @@ package body p_vue_graph is
   procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre) is
     begin -- appuiBoutonRegles
       if Elem = "pseudo" or Elem ="valider" then
+      begin
+        if ConsulterContenu(fenetre,"pseudo") /= "Pseudo" then
           pseudo(ConsulterContenu(fenetre,"pseudo")'range) := ConsulterContenu(fenetre,"pseudo");
+        else
+            appuiBoutonRegles(attendreBouton(fenetre),fenetre);
+          end if;
+          exception
+          when others =>
+            ChangerContenu(fenetre, "pseudo", "Pseudo");
+            appuiBoutonRegles(attendreBouton(fenetre),fenetre);
+          end;
           cacherFenetre(fenetre);
     else
       appuiBoutonRegles(attendreBouton(fenetre),fenetre);
@@ -355,30 +366,36 @@ package body p_vue_graph is
     estValide, dejaTrouve: boolean;
     combinaison: string := solution;
   begin
+
     if combinaison'length > 0 then
       ordonne(combinaison);
       if nbCasesSolution > 0 then
         affichageSol(fen, dernier(1..nbCasesSolution*2), FL_COL1);
       end if;
-      dernier := (others => ' ');
-      dernier(combinaison'range) := combinaison;
-      nbCasesSolution := combinaison'length / 2;
-      changerContenu(fen, "SolutionProp", "");
+      begin
+        dernier := (others => ' ');
+        dernier(combinaison'range) := combinaison;
+        nbCasesSolution := combinaison'length / 2;
+        changerContenu(fen, "SolutionProp", "");
 
-      resultatExiste(fichierSolution, combinaison, estValide);
-      if estValide then -- la solution existe
-        resultatExiste(fichierJeu, combinaison, dejaTrouve);
-        if not dejaTrouve then -- la solution n'a pas encore été découverte
-          affichageSol(fen, combinaison, FL_CHARTREUSE);
-          reset(fichierJeu, APPEND_FILE);
-          put_line(fichierJeu, combinaison);
+        resultatExiste(fichierSolution, combinaison, estValide);
+        if estValide then -- la solution existe
+          resultatExiste(fichierJeu, combinaison, dejaTrouve);
+          if not dejaTrouve then -- la solution n'a pas encore été découverte
+            affichageSol(fen, combinaison, FL_CHARTREUSE);
+            reset(fichierJeu, APPEND_FILE);
+            put_line(fichierJeu, combinaison);
+          else
+            affichageSol(fen, combinaison, FL_WHEAT);
+          end if;
         else
-          affichageSol(fen, combinaison, FL_WHEAT);
+          affichageSol(fen, combinaison, FL_TOMATO);
         end if;
-      else
-        affichageSol(fen, combinaison, FL_TOMATO);
+        exception
+        when others =>
+          appuiBoutonJeu(attendreBouton(fen),fen);
+        end;
       end if;
-    end if;
   end verifSol;
 
 end p_vue_graph;
