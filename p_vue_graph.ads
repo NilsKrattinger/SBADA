@@ -13,9 +13,9 @@ package p_vue_graph is
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
 
   procedure fenetreaccueil;
-
+  --{} => {Affiche la fenetre d'Accueil}
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre);
-
+  --{} => {Affiche la fenetre Solutions}
   procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre);
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer);

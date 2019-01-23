@@ -4,7 +4,7 @@ use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, 
 
 package body p_vue_graph is
 
-  
+
 
   function GetElement (
         Pliste     : TA_Element;
@@ -69,19 +69,27 @@ package body p_vue_graph is
   end fenetreaccueil;
 
   procedure fenetreSolutions is
+    --{} => {Affiche la fenetre de Solutions}
    fenetre : TR_Fenetre;
   begin
     fenetre:= DebutFenetre("Solutions",500,650);
     afficherGrille(fenetre, 50,50);
-    ajouterTexte(fenetre,"Solution","Solution X/Y",50,500,200,30);
+    ajouterTexte(fenetre,"Solution","Solution",50,500,120,30);
+    AjouterChamp(fenetre,"ChampNum","","131",140,500,40,30);
+    ajouterTexte(fenetre,"Y","/ 131",180,500,50,30);
     ajouterTexte(fenetre,"ZoneSolution","AXBXCXDXBXCXDX",250,500,200,30);
     ajouterBouton(fenetre, "prec", "Precedente", 50 , 550 , 100 , 30);
     ajouterBouton(fenetre, "suiv", "Suivante", 350 , 550 , 100 , 30);
     ajouterBouton(fenetre, "retour", "Retour", 200 , 600 , 100 , 30);
+    ajouterBouton(fenetre, "aller", "Aller A", 200 , 550 , 100 , 30);
     changerTailleTexte(fenetre, "Solution" ,FL_MEDIUM_SIZE);
     changerStyleTexte(fenetre, "Solution", FL_BOLD_STYLE);
     changerTailleTexte(fenetre, "ZoneSolution" ,FL_MEDIUM_SIZE);
     changerStyleTexte(fenetre, "ZoneSolution", FL_BOLD_STYLE);
+    changerTailleTexte(fenetre, "ChampNum" ,FL_MEDIUM_SIZE);
+    changerStyleTexte(fenetre, "ChampNum", FL_BOLD_STYLE);
+    changerTailleTexte(fenetre, "Y" ,FL_MEDIUM_SIZE);
+    changerStyleTexte(fenetre, "Y", FL_BOLD_STYLE);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     combinaisonAct := 1;
@@ -122,7 +130,8 @@ package body p_vue_graph is
   end appuiBoutonAccueil;
 
   procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre) is
-
+    combinaisonVoulue : integer;
+    combinaisonOld : integer;
   begin
     if Elem = "prec" then
       if combinaisonAct = 1 then
@@ -144,6 +153,23 @@ package body p_vue_graph is
       cacherFenetre(fenetre);
       close(fichierSolution);
       fenetreAccueil;
+    elsif  Elem = "aller" then
+      begin
+        combinaisonVoulue := integer'value(ConsulterContenu(fenetre,"ChampNum"));
+        exception
+        when others =>
+          actualisationInfos(fenetre,combinaisonAct);
+          appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end;
+      combinaisonOld := combinaisonAct;
+      if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
+        actualisationInfos(fenetre,combinaisonAct);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      else
+        combinaisonAct := combinaisonVoulue;
+        actualisationInfos(fenetre, combinaisonOld);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end if;
     else
       appuiBoutonSolution(attendreBouton(fenetre),fenetre);
     end if;
@@ -159,7 +185,8 @@ package body p_vue_graph is
     ancienneSolution := combi(fichierSolution, nbCasesSolution, combinaisonOld);
     reset(fichierSolution, IN_FILE);
     nouvelleSolution := combi(fichierSolution, nbCasesSolution, combinaisonAct);
-    changerTexte(fen, "Solution", "Solution" & Integer'image(combinaisonAct) & '/' & Integer'image(nbCombinaisons));
+    ChangerContenu(fen, "ChampNum",  trim(Integer'image(combinaisonAct),BOTH));
+    changerTexte(fen, "Y", '/' & Integer'image(nbCombinaisons));
     changerTexte(fen, "ZoneSolution", nouvelleSolution);
     actualisationGraph(fen, ancienneSolution, nouvelleSolution);
   end actualisationInfos;
