@@ -1,10 +1,25 @@
-with p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io;
+with p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, X.Strings;
 use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io;
 
 
 package body p_vue_graph is
 
-
+  procedure AjoutElement (
+        Pliste      : in out TA_Element;
+        TypeElement :        T_TypeElement;
+        NomElement  :        String;
+        Texte       :        String;
+        Contenu     :        String;
+        PElement    :        FL_OBJECT_Access ) is
+  begin
+    if Pliste=null or else Pliste.NomElement.all>NomElement then
+      Pliste:=new TR_Element'(TypeElement, new String'(NomElement),
+        new String'(Texte), new String'(Contenu), PElement, Pliste);
+    elsif Pliste.NomElement.all<NomElement then
+      AjoutElement(Pliste.Suivant, TypeElement, NomElement, Texte, Contenu,
+        PElement);
+    end if;
+  end AjoutElement;
 
   function GetElement (
         Pliste     : TA_Element;
@@ -19,6 +34,22 @@ package body p_vue_graph is
       return GetElement(Pliste.Suivant,NomElement);
     end if;
   end GetElement;
+
+  procedure AjouterBoutonInvisible (
+        F          : in out TR_Fenetre;
+        NomElement : in     String;
+        X,
+        Y          : in     Natural;
+        Largeur,
+        Hauteur    : in     Positive    ) is
+    Obj : FL_OBJECT_Access;
+  begin
+    if GetElement(F.PElements,NomElement)=null then
+      Obj := Fl_Add_Button(FL_HIDDEN_BUTTON,FL_Coord(X),FL_Coord(Y),
+        FL_COORD(Largeur),FL_COORD(Hauteur),X11.Strings.New_String(""));
+      AjoutElement(F.PElements, RoundBouton, NomElement, "", "",Obj);
+    end if;
+  end AjouterBoutonInvisible;
 
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural) is
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
@@ -39,6 +70,7 @@ package body p_vue_graph is
       textX := x + 5 + (99 * ((i-1) / 4));
       textY := y + 5 + (99 * ((i-1) mod 4));
       ajouterTexte(fen, V(i).nom, trim(Integer'image(V(i).valeur), BOTH), textX, textY, 92, 92);
+      AjouterBoutonInvisible(fen, 'B' & V(i).nom, textX, textY, 92, 92);
       changerTailleTexte(fen, V(i).nom, FL_HUGE_SIZE);
       P := GetElement(fen.PElements, V(i).nom);
       fl_set_object_align(P.Pelement, FL_ALIGN_CENTER);
@@ -110,7 +142,7 @@ package body p_vue_graph is
     afficherGrille(fenetre, 50,100);
     ajouterTexte(fenetre,"Txt1","Score : ",50,50,120,30);
     ajouterTexte(fenetre,"Score","0 Point",170,50,120,30);
-    AjouterChamp(fenetre,"SolutionProp","","A1B3C4D5",100,520,300,30);
+    AjouterChamp(fenetre,"SolutionProp","","",100,520,300,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
     changerStyleTexte(fenetre,"Score", FL_BOLD_STYLE);
@@ -260,8 +292,20 @@ package body p_vue_graph is
     end if;
   end appuiBoutonRegles;
 
+  function ajoutCase(coord: in string) return boolean is
+    i : integer := 1;
+  begin
+    while i < casesClic'last and then casesClic(i) /= ' ' loop
+      i := i + 1;
+    end loop;
+    if i >= casesClic'last then return false; end if;
+    casesClic(i..i+1) := coord;
+    return true;
+  end ajoutCase;
+
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
     pts : integer;
+    caseClic : string(1..2);
   begin --
     if Elem = "SolutionProp" or Elem ="valider" then
       verifSol(fenetre, consulterContenu(fenetre, "SolutionProp"));
@@ -270,6 +314,13 @@ package body p_vue_graph is
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
     elsif Elem = "abandon" then
       finJeu(fenetre, true);
+    elsif Elem'length = 3
+          and Elem(Elem'first) = 'B'
+          and Elem(Elem'first + 1) in T_Col'range
+          and Integer'value(Elem(Elem'first + 2..Elem'first + 2)) in T_Lig'range then
+      caseClic := Elem(Elem'first + 1..Elem'first + 2);
+      if ajoutCase(caseClic) then affichageSol(fenetre, caseClic, FL_PALEGREEN); end if;
+      appuiBoutonJeu(attendreBouton(fenetre),fenetre);
     else
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
   end if;
@@ -305,6 +356,7 @@ package body p_vue_graph is
     create(fichierJeu, IN_FILE, "solutionsTrouvees");
     open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
     pseudo := (others => ' ');
+    casesClic := (others => ' ');
     fenetreRegles;
     fenetreJeu;
   end debutJeu;
@@ -360,6 +412,12 @@ package body p_vue_graph is
       if nbCasesSolution > 0 then
         affichageSol(fen, dernier(1..nbCasesSolution*2), FL_COL1);
       end if;
+
+      if casesClic(1) /= ' ' then
+        affichageSol(fen, trim(casesClic, BOTH), FL_COL1);
+        casesClic := (others => ' ');
+      end if;
+
       dernier := (others => ' ');
       dernier(combinaison'range) := combinaison;
       nbCasesSolution := combinaison'length / 2;

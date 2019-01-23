@@ -18,6 +18,9 @@ package p_vue_graph is
   dernier : string(1..14);
   fichierJeu : text_io.file_type;
   pseudo: string(1..20);
+  casesClic: string(1..14);
+
+  procedure AjouterBoutonInvisible (F : in out TR_Fenetre; NomElement : in String; X, Y : in Natural; Largeur, Hauteur : in Positive);
 
   procedure fenetreRegles ;
 
