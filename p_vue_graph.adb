@@ -294,6 +294,7 @@ package body p_vue_graph is
       begin
         if ConsulterContenu(fenetre,"pseudo") /= "Pseudo" then
           pseudo(ConsulterContenu(fenetre,"pseudo")'range) := ConsulterContenu(fenetre,"pseudo");
+          cacherFenetre(fenetre);
         else
             appuiBoutonRegles(attendreBouton(fenetre),fenetre);
           end if;
@@ -302,7 +303,6 @@ package body p_vue_graph is
             ChangerContenu(fenetre, "pseudo", "Pseudo");
             appuiBoutonRegles(attendreBouton(fenetre),fenetre);
           end;
-          cacherFenetre(fenetre);
     else
       appuiBoutonRegles(attendreBouton(fenetre),fenetre);
     end if;
