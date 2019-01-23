@@ -19,6 +19,10 @@ package p_vue_graph is
   fichierJeu : text_io.file_type;
   pseudo: string(1..20);
 
+  procedure fenetreRegles ;
+
+  procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre);
+  --{} => {Affiche la fenetre d'Accueil}
 
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}

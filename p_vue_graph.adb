@@ -65,7 +65,7 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50,100,400,30);
     ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50,130,400,30);
     ajouterTexte(fenetre, "Textintro3", "solution, et choisir de ne consulter que les solutions contigues. ", 50,160,400,30);
-    ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220,210,400,30);
+    ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220,210,120,30);
     changerStyleTexte(fenetre,"Contigue", FL_BOLD_STYLE);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
@@ -128,6 +128,33 @@ package body p_vue_graph is
 
   end fenetreJeu;
 
+  procedure fenetreRegles is
+    fenetre: TR_Fenetre;
+  begin
+    fenetre:= DebutFenetre("Regles",500,300);
+    ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50,50,150,30);
+    AjouterChamp(fenetre,"pseudo","","ZaxisFR",200,50,160,30);
+    ajouterTexte(fenetre,"Txt2","Juste",50,90,60,50);
+    ajouterTexte(fenetre,"Txt3","Double",50,150,60,50);
+    ajouterTexte(fenetre,"Txt4","Faux",50,210,60,50);
+    ajouterTexte(fenetre, "Regles1", "Bienvenue dans le programme du carre de Subira", 130,90,320,30);
+    ajouterTexte(fenetre, "Regles2", "Bienvenue dans le programme du carre de Subira", 130,120,320,30);
+    ajouterTexte(fenetre, "Regles3", "Bienvenue dans le programme du carre de Subira", 130,150,320,30);
+    ajouterTexte(fenetre, "Regles4", "Bienvenue dans le programme du carre de Subira", 130,180,320,30);
+    ajouterTexte(fenetre, "Regles5", "Bienvenue dans le programme du carre de Subira", 130,210,320,30);
+    ajouterTexte(fenetre, "Regles6", "Bienvenue dans le programme du carre de Subira", 130,240,320,30);
+    ajouterBouton(fenetre, "valider", "Valider", 200 , 300 , 100 , 30);
+    changerStyleTexte(fenetre,"Txt2", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"Txt3", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"Txt4", FL_BOLD_STYLE);
+    changerCouleurFond(fenetre,"Txt2", FL_CHARTREUSE);
+    changerCouleurFond(fenetre,"Txt3", FL_WHEAT);
+    changerCouleurFond(fenetre,"Txt4", FL_TOMATO);
+    finFenetre(fenetre);
+    montrerFenetre(fenetre);
+    appuiBoutonRegles(attendreBouton(fenetre), fenetre);
+  end fenetreRegles;
+
   procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
   begin
     open(fichierSolution, IN_FILE, nomFichier);
@@ -164,7 +191,8 @@ package body p_vue_graph is
         ouvreFenetreSolutions("fout.txt", fenetre);
       end if;
     elsif Elem = "jeu" then
-      fenetreJeu;
+      fenetreRegles;
+    --  fenetreJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
     else
@@ -224,19 +252,36 @@ package body p_vue_graph is
   end appuiBoutonSolution;
 
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
-  begin --
-    if Elem = "SolutionProp" or Elem ="valider"then
-      appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-  elsif Elem = "abandon" then
-    appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-  else
-    appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-  end if;
-  end appuiBoutonJeu;
+    begin --
+      if Elem = "SolutionProp" or Elem ="valider"then
+        appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+      elsif Elem = "abandon" then
+        appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+      else
+        appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+    end if;
+    end appuiBoutonJeu;
+
+  procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre) is
+    begin -- appuiBoutonRegles
+      if Elem = "pseudo" or Elem ="valider" then
+      begin
+          pseudo := ConsulterContenu(fenetre,"pseudo")();
+          put (pseudo);
+       exception
+        when others =>
+        put("error name");
+        put (pseudo);
+        appuiBoutonSolution(attendreBouton(fenetre),fenetre);
+      end;
+    else
+      appuiBoutonRegles(attendreBouton(fenetre),fenetre);
+    end if;
+  end appuiBoutonRegles;
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer) is
-  -- {} => {Actualisation des informations pour la solution nbSol}
-    ancienneSolution, nouvelleSolution: string(1..nbCasesSolution*2);
+      -- {} => {Actualisation des informations pour la solution nbSol}
+      ancienneSolution, nouvelleSolution: string(1..nbCasesSolution*2);
   begin
     reset(fichierSolution, IN_FILE);
     ancienneSolution := combi(fichierSolution, nbCasesSolution, combinaisonOld);
@@ -250,7 +295,7 @@ package body p_vue_graph is
   end actualisationInfos;
 
   procedure affichageSol(fen: in out TR_Fenetre; combinaison: in string; coul: in FL_Color) is
-  -- {} => {Actualisation de la grille avec la solution de couleur coul}
+    -- {} => {Actualisation de la grille avec la solution de couleur coul}
   begin
     for i in 1..combinaison'length/2 loop
       changerCouleurFond(fen, combinaison(i*2-1..i*2), coul);
