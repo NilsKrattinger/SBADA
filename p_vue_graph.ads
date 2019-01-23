@@ -1,13 +1,7 @@
-with p_fenbase, p_combinaisons, text_io, Forms, sequential_IO;
+with p_fenbase, p_combinaisons, text_io, Forms;
 use  p_fenbase, p_combinaisons, text_io, Forms;
 
 package p_vue_graph is
-  type TR_Score is record
-    pseudo: string(1..20);
-    score: integer;
-  end record;
-
-  package p_score_io is new sequential_IO(TR_Score); use p_score_io;
 
   nbCasesSolution : integer;
   nbCombinaisons : integer;
@@ -15,10 +9,8 @@ package p_vue_graph is
   combinaisonAct : integer;
   contigue : boolean;
 
-  dernier : string(1..14);
-  fichierJeu : text_io.file_type;
-  pseudo: string(1..20);
   casesClic: string(1..14);
+  ancienneCoul: FL_Color := FL_COL1;
 
   procedure AjouterBoutonInvisible (F : in out TR_Fenetre; NomElement : in String; X, Y : in Natural; Largeur, Hauteur : in Positive);
 
@@ -43,22 +35,13 @@ package p_vue_graph is
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer);
   -- {} => {Actualisation des informations pour la solution nbSol}
 
-  procedure debutJeu;
-  -- {} => {Lance le jeu}
-
-  function compterPoints return integer;
-  -- {fichierJeu ouvert} => {résultat = nombre de points du joueur}
-
-  procedure enregistrerScore(score: in TR_Score);
-  -- {} => {le score a été enregistré dans le fichier de scores}
-
-  procedure finJeu(fen: in out TR_Fenetre; abandon: in boolean);
-  -- {} => {Finit le jeu}
-
   procedure affichageSol(fen: in out TR_Fenetre; combinaison: in string; coul: in FL_Color);
   -- {} => {Actualisation de la grille avec la solution de couleur coul}
 
-  procedure verifSol(fen: in out TR_Fenetre; solution: in string);
-  -- {} => {Vérifie si la solution est correcte}
+  procedure effacerGrille(fen: in out TR_Fenetre);
+  -- {} => {Les solutions affichées sur la grille sont effacées}
+
+  procedure actualisationEssai(fen: in out TR_Fenetre; solution: in string; resultat: in integer);
+  -- {} => {Met à jour la grille avec la solution colorée après un essai dans le jeu}
 
 end p_vue_graph;
