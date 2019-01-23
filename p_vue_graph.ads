@@ -13,6 +13,7 @@ package p_vue_graph is
   nbCombinaisons : integer;
   fichierSolution : text_io.file_type;
   combinaisonAct : integer;
+  contigue : boolean;
 
   dernier : string(1..14);
   fichierJeu : text_io.file_type;
