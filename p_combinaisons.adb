@@ -13,7 +13,7 @@ package body p_combinaisons is
 		begin
 			reset(f, IN_FILE);
 			i := V'first;
-			while not end_of_file(f) loop
+			while not end_of_file(f) loop  --On ecrit chauque elements de F dans V
 				read(f,tmp);
 				V(i) := tmp;
 				i := i+1;
@@ -56,27 +56,31 @@ package body p_combinaisons is
 		-- => {résultat = somme des éléments de V aux indices contenus dans Vind}
 			resultat : integer := 0;
 		begin
-			for i in Vind'range loop
-				resultat := resultat + V(Vind(i)).valeur;
+			for i in Vind'range loop --on pacour Vind
+				resultat := resultat + V(Vind(i)).valeur;  --on somme les elements de v d'indice vind(i)'
 			end loop;
 			return resultat;
 		end somme;
+
+
 	begin
 		Vcompte := (others => 0);
 		for i in 3..7 loop
 			declare
-				Vind : TV_Ent(0..i-1);
+				Vind : TV_Ent(0..i-1); -- Declaration d'un vecteur de I case qui stock les indices
 				g : text_io.file_type;
 				ind : integer;
 				termine : boolean := false;
 			begin
-				create(g, OUT_FILE, "resultat" & Integer'image(i)(2));
+				create(g, OUT_FILE, "resultat" & Integer'image(i)(2)); --Cration d'un ficher des Solutions pour I cases
 
 				for j in Vind'range loop -- initialisation d'un sous-vecteur d'indices de V
 					Vind(j) := V'first+j;
 				end loop;
+
+
 				loop
-					if somme(V, Vind) = 33 then
+					if somme(V, Vind) = 33 then  --Si la somme = 33 on ecrit notre vecteur d'indices dans notre fiche de solutions
 						Vcompte(i) := Vcompte(i) + 1;
 						for j in Vind'range loop
 							put(g, V(Vind(j)).nom);
@@ -84,12 +88,12 @@ package body p_combinaisons is
 						new_line(g);
 					end if;
 
-					Vind(Vind'last) := Vind(Vind'last) + 1;
+					Vind(Vind'last) := Vind(Vind'last) + 1;  --On incremente le vecteur d'indices
 					ind := Vind'last;
-					while ind >= Vind'first and not termine loop
+					while ind >= Vind'first and not termine loop --mdr je sais pas XDDDDD
 						if Vind(ind) >= V'last + 1 - (Vind'last - ind) then
 							if ind = Vind'first then
-								termine := true;
+								termine := true;  -- si le dernier idices et a la postions vect'last - indice alors on a fini
 							else
 								Vind(ind-1) := Vind(ind-1) + 1;
 								for k in ind..Vind'last loop
@@ -138,7 +142,7 @@ package body p_combinaisons is
 		nbSkip : integer := nbcases - 3;
 		val : integer;
 	begin
-		while nbSkip > 0 loop
+		while nbSkip > 0 loop  -- comme nous avons 1 page pa X cases
 			skip_page(fsol);
 			nbSkip := nbSkip - 1;
 		end loop;
@@ -277,10 +281,11 @@ package body p_combinaisons is
 		delete(ftmp);
 	end creeFicsolcont;
 
-	procedure fichiersInit is
+	procedure fichiersInit (V: out TV_Gaudi) is
+		--{V : est taille 16} => {Genere Fout.txt et foutcont.txt contenants les solutions et le solutions contigües}
     f: p_cases_io.file_type;
     fout, foutcont: text_io.file_type;
-    V: TV_Gaudi(1..16);
+    
   begin
     open(f, IN_FILE, "CarreGaudi");
     CreeVectGaudi(f, V);

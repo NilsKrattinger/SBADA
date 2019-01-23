@@ -27,16 +27,24 @@ procedure gauditext is
 
   f: p_cases_io.file_type;
   V: TV_Gaudi(1..16);
-
-  nbelem: integer;
+  nbelem: integer := 0;
   fout, foutcont: text_io.file_type;
 
   continue, contigu : boolean;
 begin
-   fichiersInit;
+   fichiersInit(V);
+   open(f, IN_FILE, "CarreGaudi");
+   open(fout, OUT_FILE, "fout.txt");
+   open(foutcont ,OUT_FILE,"foutcont.txt");
   loop
+    while not (nbelem in 3..7 )loop
     put("Entrez le nombre d'éléments de la solution : ");
     get(nbelem); skip_line;
+    if not (nbelem in 3..7) then
+      put("NB élement dois ete en 3 et 7");
+      new_line;
+    end if;
+  end loop;
 
     put("Voulez-vous n'afficher que les solutions contigües ? ");
     contigu := getUserBool;
