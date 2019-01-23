@@ -4,7 +4,7 @@ use  p_fenbase, Forms, p_combinaisons, Ada.Strings, Ada.Strings.Fixed, text_io, 
 
 package body p_vue_graph is
 
-  
+
 
   function GetElement (
         Pliste     : TA_Element;
