@@ -142,17 +142,22 @@ package body p_vue_graph is
     afficherGrille(fenetre, 50,100);
     ajouterTexte(fenetre,"Txt1","Score : ",50,50,120,30);
     ajouterTexte(fenetre,"Score","0 Point",170,50,120,30);
+    ajouterTexte(fenetre,"Txt2","Temps : ",300,50,120,30);
+    ajouterTexte(fenetre,"Timer","60",420,50,120,30);
     AjouterChamp(fenetre,"SolutionProp","","",100,520,300,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
-    changerStyleTexte(fenetre,"Score", FL_BOLD_STYLE);
+    --changerStyleTexte(fenetre,"Score", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"SolutionProp", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"valider", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"Txt1", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"Txt2", FL_BOLD_STYLE);
     changerTailleTexte(fenetre, "Score" ,FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "Timer" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "SolutionProp" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "valider" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt1" ,FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "Txt2" ,FL_MEDIUM_SIZE);
 
     finFenetre(fenetre);
     montrerFenetre(fenetre);
@@ -167,7 +172,7 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50,50,150,30);
     AjouterChamp(fenetre,"pseudo","","Pseudo",200,50,160,30);
     ajouterTexte(fenetre,"Txt2","Juste",50,90,60,50);
-    ajouterTexte(fenetre,"Txt3","Double",50,150,60,50);
+    ajouterTexte(fenetre,"Txt3","Doublon",50,150,60,50);
     ajouterTexte(fenetre,"Txt4","Faux",50,210,60,50);
     ajouterTexte(fenetre, "Regles1", "Bienvenue dans le programme du carre de Subira", 130,90,320,30);
     ajouterTexte(fenetre, "Regles2", "Bienvenue dans le programme du carre de Subira", 130,120,320,30);
@@ -179,9 +184,9 @@ package body p_vue_graph is
     changerStyleTexte(fenetre,"Txt2", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"Txt3", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"Txt4", FL_BOLD_STYLE);
-    changerCouleurFond(fenetre,"Txt2", FL_CHARTREUSE);
+    changerCouleurFond(fenetre,"Txt2", FL_PALEGREEN);
     changerCouleurFond(fenetre,"Txt3", FL_WHEAT);
-    changerCouleurFond(fenetre,"Txt4", FL_TOMATO);
+    changerCouleurFond(fenetre,"Txt4", FL_INDIANRED);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
     appuiBoutonRegles(attendreBouton(fenetre), fenetre);
@@ -306,8 +311,8 @@ package body p_vue_graph is
   function ajoutCase(coord: in string) return boolean is
     i : integer := 1;
   begin
-    while i < casesClic'last and then casesClic(i) /= ' ' loop
-      i := i + 1;
+    while i < casesClic'last and then (casesClic(i) /= ' ' and casesClic(i..i+1) /= coord) loop
+      i := i + 2;
     end loop;
     if i >= casesClic'last then return false; end if;
     casesClic(i..i+1) := coord;
@@ -319,7 +324,7 @@ package body p_vue_graph is
     caseClic : string(1..2);
   begin --
     if Elem = "SolutionProp" or Elem ="valider" then
-      verifSol(fenetre, consulterContenu(fenetre, "SolutionProp"));
+      verifSol(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH));
       pts := compterPoints;
       changerTexte(fenetre, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
@@ -330,7 +335,7 @@ package body p_vue_graph is
           and Elem(Elem'first + 1) in T_Col'range
           and Integer'value(Elem(Elem'first + 2..Elem'first + 2)) in T_Lig'range then
       caseClic := Elem(Elem'first + 1..Elem'first + 2);
-      if ajoutCase(caseClic) then affichageSol(fenetre, caseClic, FL_PALEGREEN); end if;
+    if ajoutCase(caseClic) then affichageSol(fenetre, caseClic, FL_DARKCYAN); end if;
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
     else
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
@@ -438,14 +443,14 @@ package body p_vue_graph is
       if estValide then -- la solution existe
         resultatExiste(fichierJeu, combinaison, dejaTrouve);
         if not dejaTrouve then -- la solution n'a pas encore été découverte
-          affichageSol(fen, combinaison, FL_CHARTREUSE);
+          affichageSol(fen, combinaison, FL_PALEGREEN);
           reset(fichierJeu, APPEND_FILE);
           put_line(fichierJeu, combinaison);
         else
           affichageSol(fen, combinaison, FL_WHEAT);
         end if;
       else
-        affichageSol(fen, combinaison, FL_TOMATO);
+        affichageSol(fen, combinaison, FL_INDIANRED);
       end if;
     end if;
     exception
