@@ -165,7 +165,7 @@ package body p_vue_graph is
   begin
     fenetre:= DebutFenetre("Regles",500,300);
     ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50,50,150,30);
-    AjouterChamp(fenetre,"pseudo","","ZaxisFR",200,50,160,30);
+    AjouterChamp(fenetre,"pseudo","","Pseudo",200,50,160,30);
     ajouterTexte(fenetre,"Txt2","Juste",50,90,60,50);
     ajouterTexte(fenetre,"Txt3","Double",50,150,60,50);
     ajouterTexte(fenetre,"Txt4","Faux",50,210,60,50);
@@ -223,6 +223,7 @@ package body p_vue_graph is
         ouvreFenetreSolutions("fout.txt", fenetre);
       end if;
     elsif Elem = "jeu" then
+      cacherFenetre(fenetre);
       debutJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
@@ -285,7 +286,17 @@ package body p_vue_graph is
   procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre) is
     begin -- appuiBoutonRegles
       if Elem = "pseudo" or Elem ="valider" then
+      begin
+        if ConsulterContenu(fenetre,"pseudo") /= "Pseudo" then
           pseudo(ConsulterContenu(fenetre,"pseudo")'range) := ConsulterContenu(fenetre,"pseudo");
+        else
+            appuiBoutonRegles(attendreBouton(fenetre),fenetre);
+          end if;
+          exception
+          when others =>
+            ChangerContenu(fenetre, "pseudo", "Pseudo");
+            appuiBoutonRegles(attendreBouton(fenetre),fenetre);
+          end;
           cacherFenetre(fenetre);
     else
       appuiBoutonRegles(attendreBouton(fenetre),fenetre);
@@ -437,6 +448,9 @@ package body p_vue_graph is
         affichageSol(fen, combinaison, FL_TOMATO);
       end if;
     end if;
+    exception
+    when others =>
+      appuiBoutonJeu(attendreBouton(fen),fen);
   end verifSol;
 
 end p_vue_graph;
