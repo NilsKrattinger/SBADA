@@ -20,6 +20,8 @@ package body p_jeu is
           accept fermer do -- On rend le chrono inutilisable
             fin := true;
           end fermer;
+        or
+          terminate;
         end select;
       else
         select

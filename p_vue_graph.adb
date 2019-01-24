@@ -18,6 +18,8 @@ package body p_vue_graph is
           accept fermer do
             fin := true;
           end fermer;
+        or
+          terminate;
         end select;
       else
         select

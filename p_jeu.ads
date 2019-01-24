@@ -29,7 +29,7 @@ package p_jeu is
   dernier : string(1..14);
   pseudo: string(1..20);
 
-  tempsRestant : duration;
+  tempsRestant : duration := 0.0;
   jeuEnCours : boolean := false;
   chrono : T_Chrono;
 
