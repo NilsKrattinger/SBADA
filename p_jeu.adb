@@ -44,7 +44,7 @@ package body p_jeu is
   procedure finJeu(abandon: in boolean) is
   -- {} => {Finit le jeu}
   begin
-    if not abandon then enregistrerScore((pseudo, compterPoints)); end if;
+   if not abandon then enregistrerScore((pseudo, compterPoints)); end if;
     delete(fichierJeu);
     close(fichierSolution);
   end finJeu;
@@ -78,4 +78,60 @@ package body p_jeu is
       result := SOLUTION_INVALIDE;
     end if;
   end verifSol;
+
+  function Nbscores(f : in p_score_io.file_type) return integer is
+  --{f ouvert et f- = <>} => {copmpte de le Nb de score du fichier}
+  tmp : TR_Score;
+  i: integer := 0;
+begin
+    while not end_of_file(f) loop
+    read(f,Tmp);
+      i := i+1;
+  end loop;
+  return i;
+end Nbscores;
+
+
+  procedure CopieFicherScore(f : in out p_score_io.file_type ;  V : out TV_Score) is
+  -- {f ouvert, V de taille suffisante} => {Copie les elements vers v}
+    tmp : TR_Score;
+    i: integer;
+  begin
+    i := v'first;
+    reset(f,IN_FILE);
+    while not end_of_file(f)  loop
+      read(f,tmp);
+      v(i) := tmp;
+      i := i+1;
+    end loop;
+    close(f);
+  end CopieFicherScore;
+
+  procedure permut(a, b: in out  TR_Score) is -- type des valeurs du vecteur
+  -- {} => {les valeurs de a et b ont été échangées}
+    temp: TR_Score ;
+  begin
+    temp := a;
+    a := b;
+    b := temp;
+  end permut;
+
+  procedure triBullesScores(V : in out TV_Score) is
+  -- {} => {V trié par ordre croissant}
+    i : integer := V'first;
+    permutation: boolean := true;
+  begin
+    while permutation loop
+      permutation := false;
+      for j in reverse i+1..V'last loop
+        if V(j).score < V(j-1).score then
+          permut(V(j), V(j-1));
+          permutation := true;
+        end if;
+      end loop;
+      i := i+1;
+    end loop;
+  end triBullesScores;
+
+
 end p_jeu;

@@ -25,6 +25,9 @@ package p_vue_graph is
   procedure fenetreaccueil;
   --{} => {Affiche la fenetre d'Accueil}
 
+  procedure fenetreScores;
+  --{} => {Affiche la fenetre Scoreboard}
+
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre);
   --{} => {Affiche la fenetre Solutions}
 

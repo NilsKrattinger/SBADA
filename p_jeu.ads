@@ -20,6 +20,8 @@ package p_jeu is
   fichierJeu : text_io.file_type;
   pseudo: string(1..20);
 
+  type TV_Score is array (positive range <>) of TR_Score;
+
   procedure debutJeu(contigue: in boolean);
   -- {} => {Lance le jeu}
 
@@ -34,5 +36,17 @@ package p_jeu is
 
   procedure verifSol(solution: in string; result: out integer);
   -- {} => {Vérifie si la solution est correcte}
+
+  function Nbscores(f : in p_score_io.file_type) return integer;
+  --{} => {copmpte de le Nb de score du fichier}
+
+  procedure CopieFicherScore(f : in out p_score_io.file_type ;  V : out TV_Score);
+  --{f ouvert, V de taille suffisante} => {Copie les elements vers v}
+
+  procedure permut(a, b: in out  TR_Score) ;
+  -- {} => {les valeurs de a et b ont été échangées}
+
+  procedure triBullesScores(V : in out TV_Score);
+  -- {} => {V trié par ordre croissant}
 
 end p_jeu;

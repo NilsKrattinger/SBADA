@@ -1,5 +1,5 @@
 with p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, X.Strings;
-use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io;
+use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io, p_jeu.p_score_io;
 
 
 package body p_vue_graph is
@@ -91,8 +91,9 @@ package body p_vue_graph is
     changerCouleurTexte(fenetre,"3" , FL_DOGERBLUE);
     ajouterBouton(fenetre, "jeu", "Jouer au jeu", 35 , 430, 200 , 50);
     ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265 , 430 , 200 , 50);
-    ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 505 , 100 , 50);
+    ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 580 , 100 , 50);
     ajouterBouton(fenetre, "Contigue", "Non", 200 , 375 , 50 , 30);
+    ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 190 , 505 ,  120 , 50);
     ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50,375,150,30);
     ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50,100,400,30);
     ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50,130,400,30);
@@ -192,6 +193,39 @@ package body p_vue_graph is
     appuiBoutonRegles(attendreBouton(fenetre), fenetre);
   end fenetreRegles;
 
+  procedure fenetreScores is
+    fenetre: TR_Fenetre;
+    fscore : p_score_io.file_type;
+    i : integer ;
+  begin
+    open(fscore, IN_FILE, "score");
+    i := 1;
+    reset(fscore,IN_FILE);
+    if Nbscores(fscore) > 0 then
+      reset(fscore,IN_FILE);
+      declare
+          VScore : TV_Score(1..Nbscores(fscore));
+        begin
+          reset(fscore,IN_FILE);
+          CopieFicherScore(fscore,VScore);
+          triBullesScores(VScore);
+          fenetre:= DebutFenetre("Scoreboard",500,600);
+          while  i  <= 10 and i <= VScore'last  loop
+            ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,50 + (50*i),250,130);
+            ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 250,50 + (50*i),3200,130);
+            i := i+1;
+          end loop;
+          ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
+          finFenetre(fenetre);
+          montrerFenetre(fenetre);
+          if attendreBouton(fenetre) /= "00" then
+            cacherFenetre(fenetre);
+            fenetreaccueil;
+        end if;
+      end;
+    end if;
+  end fenetreScores;
+
   procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
   begin
     open(fichierSolution, IN_FILE, nomFichier);
@@ -234,7 +268,10 @@ package body p_vue_graph is
       fenetreRegles;
       fenetreJeu;
     elsif Elem = "Fermer" then
-      CacherFenetre(fenetre);
+    CacherFenetre(fenetre);
+    elsif Elem = "Scoreboard" then
+    CacherFenetre(fenetre);
+    fenetreScores;
     else
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     end if;
