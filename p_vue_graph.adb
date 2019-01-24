@@ -4,6 +4,47 @@ use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, te
 
 package body p_vue_graph is
 
+  task body T_ActualisationJeu is
+    actif, fin: boolean := false;
+    fen: TR_Fenetre;
+  begin
+    while not fin loop
+      if not actif then
+        select
+          accept start(fenetre: in out TR_Fenetre) do
+            actif := true;
+            fen := fenetre;
+          end start;
+        or
+          accept fermer do
+            fin := true;
+          end fermer;
+        end select;
+      else
+        select
+          accept stop do
+            actif := false;
+          end stop;
+        or
+          delay FREQUENCE_MAJ;
+        end select;
+
+        if actif then
+          changerTexte(fen, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))));
+          if not jeuEnCours then
+            actif := false;
+            cacherElem(fen, "valider");
+            changerEtatBouton(fen, "valider", ARRET);
+            cacherElem(fen, "abandon");
+            changerEtatBouton(fen, "abandon", ARRET);
+            montrerElem(fen, "finjeu");
+            changerEtatBouton(fen, "finjeu", MARCHE);
+          end if;
+        end if;
+      end if;
+    end loop;
+  end T_ActualisationJeu;
+
   procedure AjoutElement (
         Pliste      : in out TA_Element;
         TypeElement :        T_TypeElement;
@@ -142,25 +183,32 @@ package body p_vue_graph is
     afficherGrille(fenetre, 50,100);
     ajouterTexte(fenetre,"Txt1","Score : ",50,50,120,30);
     ajouterTexte(fenetre,"Score","0 Point",170,50,120,30);
-    ajouterTexte(fenetre,"Txt2","Temps : ",300,50,120,30);
-    ajouterTexte(fenetre,"Timer","60",420,50,120,30);
+    ajouterTexte(fenetre,"Txt2","Temps : ",300,50,80,30);
+    ajouterTexte(fenetre,"Timer"," 60",380,50,80,30);
     AjouterChamp(fenetre,"SolutionProp","","",100,520,300,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
+    ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200 , 560 , 100 , 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
     --changerStyleTexte(fenetre,"Score", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"SolutionProp", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"valider", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre,"finjeu", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"Txt1", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"Txt2", FL_BOLD_STYLE);
     changerTailleTexte(fenetre, "Score" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Timer" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "SolutionProp" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "valider" ,FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "finjeu" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt1" ,FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt2" ,FL_MEDIUM_SIZE);
 
+    cacherElem(fenetre, "finjeu");
+    changerEtatBouton(fenetre, "finjeu", ARRET);
+
     finFenetre(fenetre);
     montrerFenetre(fenetre);
+    chronoJeu.start(fenetre);
     appuiBoutonJeu(attendreBouton(fenetre), fenetre);
 
   end fenetreJeu;
@@ -229,12 +277,14 @@ package body p_vue_graph is
       end if;
     elsif Elem = "jeu" then
       cacherFenetre(fenetre);
-      debutJeu(contigue);
       casesClic := (others => ' ');
       fenetreRegles;
+      debutJeu(contigue);
       fenetreJeu;
     elsif Elem = "Fermer" then
       CacherFenetre(fenetre);
+      chrono.fermer;
+      chronoJeu.fermer;
     else
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     end if;
@@ -341,29 +391,37 @@ package body p_vue_graph is
     solutionCorrecte : integer;
     caseClic : string(1..2);
   begin --
-    if Elem = "SolutionProp" or Elem ="valider" then
-      effacerGrille(fenetre);
-      verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
-      actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
-      appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-    elsif Elem = "abandon" then
-      finJeu(true);
-      cacherFenetre(fenetre);
-      fenetreAccueil;
-    elsif Elem'length = 3
-          and Elem(Elem'first) = 'B'
-          and Elem(Elem'first + 1) in T_Col'range
-          and Integer'value(Elem(Elem'first + 2..Elem'first + 2)) in T_Lig'range then
-      caseClic := Elem(Elem'first + 1..Elem'first + 2);
-      if ajoutCase(caseClic) then
-        affichageSol(fenetre, caseClic, FL_DARKCYAN);
+    if jeuEnCours then
+      if Elem = "SolutionProp" or Elem ="valider" then
+        effacerGrille(fenetre);
+        verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
+        actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
+        appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+      elsif Elem = "abandon" then
+        chronoJeu.stop;
+        finJeu(true);
+        cacherFenetre(fenetre);
+        fenetreAccueil;
+      elsif Elem'length = 3
+            and Elem(Elem'first) = 'B'
+            and Elem(Elem'first + 1) in T_Col'range
+            and Integer'value(Elem(Elem'first + 2..Elem'first + 2)) in T_Lig'range then
+        caseClic := Elem(Elem'first + 1..Elem'first + 2);
+        if ajoutCase(caseClic) then
+          affichageSol(fenetre, caseClic, FL_DARKCYAN);
+        else
+          affichageSol(fenetre, caseClic, FL_COL1);
+        end if;
+        appuiBoutonJeu(attendreBouton(fenetre),fenetre);
       else
-        affichageSol(fenetre, caseClic, FL_COL1);
+        appuiBoutonJeu(attendreBouton(fenetre),fenetre);
       end if;
-      appuiBoutonJeu(attendreBouton(fenetre),fenetre);
+    elsif Elem = "finjeu" then
+        cacherFenetre(fenetre);
+        fenetreAccueil;
     else
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-  end if;
+    end if;
   end appuiBoutonJeu;
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer) is

@@ -1,13 +1,58 @@
-with p_combinaisons, Ada.Characters.Handling;
-use  p_combinaisons, Ada.Characters.Handling;
+with p_combinaisons, Ada.Characters.Handling, Ada.Calendar;
+use  p_combinaisons, Ada.Characters.Handling, Ada.Calendar;
 
 package body p_jeu is
+  task body T_Chrono is
+    actif, fin: boolean := false;
+
+    prochaine_maj, datefin : Ada.Calendar.Time;
+  begin
+    while not fin loop
+      if not actif then
+        select
+          accept start(temps: in duration) do
+            actif := true;
+            datefin := Ada.Calendar.Clock + temps;
+            prochaine_maj := Ada.Calendar.Clock + FREQUENCE_MAJ;
+            tempsRestant := datefin - Ada.Calendar.Clock;
+          end start;
+        or
+          accept fermer do
+            fin := true;
+          end fermer;
+        end select;
+      else
+        select
+          accept stop do
+            actif := false;
+          end stop;
+        or
+          delay until prochaine_maj;
+        end select;
+
+        if actif then
+          if datefin < Ada.Calendar.Clock then
+            actif := false;
+            tempsRestant := 0.0;
+            finJeu(false);
+          else
+            tempsRestant := datefin - Ada.Calendar.Clock;
+            prochaine_maj := prochaine_maj + FREQUENCE_MAJ;
+            delay until prochaine_maj;
+          end if;
+        end if;
+      end if;
+    end loop;
+  end T_Chrono;
+
   procedure debutJeu(contigue: in boolean) is
   -- {} => {Lance le jeu}
   begin
     tailleSolution := 0;
     create(fichierJeu, IN_FILE, "solutionsTrouvees");
     open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
+    jeuEnCours := true;
+    chrono.start(60.0);
   end debutJeu;
 
   function compterPoints return integer is
@@ -44,9 +89,12 @@ package body p_jeu is
   procedure finJeu(abandon: in boolean) is
   -- {} => {Finit le jeu}
   begin
-    if not abandon then enregistrerScore((pseudo, compterPoints)); end if;
+    if not abandon then enregistrerScore((pseudo, compterPoints));
+    else chrono.stop;
+    end if;
     delete(fichierJeu);
     close(fichierSolution);
+    jeuEnCours := false;
   end finJeu;
 
   procedure verifSol(solution: in string; result: out integer) is
@@ -54,7 +102,7 @@ package body p_jeu is
     estValide, dejaTrouve: boolean;
     combinaison: string := to_upper(solution);
   begin
-    if combinaison'length > 0 and combinaison'length <= 14 then
+    if combinaison'length > 0 and combinaison'length <= 14 and jeuEnCours then
       ordonne(combinaison);
 
       dernier := (others => ' ');

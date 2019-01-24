@@ -3,6 +3,12 @@ use  p_fenbase, p_combinaisons, text_io, Forms;
 
 package p_vue_graph is
 
+  task type T_ActualisationJeu is
+    entry start(fenetre: in out TR_Fenetre);
+    entry fermer;
+    entry stop;
+  end T_ActualisationJeu;
+
   nbCasesSolution : integer;
   nbCombinaisons : integer;
   fichierSolution : text_io.file_type;
@@ -11,6 +17,7 @@ package p_vue_graph is
 
   casesClic: string(1..14);
   ancienneCoul: FL_Color := FL_COL1;
+  chronoJeu: T_ActualisationJeu;
 
   procedure AjouterBoutonInvisible (F : in out TR_Fenetre; NomElement : in String; X, Y : in Natural; Largeur, Hauteur : in Positive);
 

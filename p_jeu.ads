@@ -7,18 +7,30 @@ package p_jeu is
     score: integer;
   end record;
 
+  task type T_Chrono is
+    entry start(temps: in duration);
+    entry fermer;
+    entry stop;
+  end T_Chrono;
+
   package p_score_io is new sequential_IO(TR_Score); use p_score_io;
 
+  FREQUENCE_MAJ : constant duration := 1.0;
   SOLUTION_CORRECTE : constant integer := 0;
   SOLUTION_DOUBLON : constant integer := 1;
   SOLUTION_INCORRECTE : constant integer := 2;
   SOLUTION_INVALIDE : constant integer := 3;
 
-  tailleSolution : integer;
-  fichierSolution : text_io.file_type;
-  dernier : string(1..14);
   fichierJeu : text_io.file_type;
+  fichierSolution : text_io.file_type;
+  tailleSolution : integer;
+
+  dernier : string(1..14);
   pseudo: string(1..20);
+
+  tempsRestant : duration;
+  jeuEnCours : boolean := false;
+  chrono : T_Chrono;
 
   procedure debutJeu(contigue: in boolean);
   -- {} => {Lance le jeu}
