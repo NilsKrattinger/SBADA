@@ -247,7 +247,7 @@ package body p_vue_graph is
   begin
     open(fscore, IN_FILE, "score");
     i := 1;
-    reset(fscore,IN_FILE);
+    fenetre:= DebutFenetre("Scoreboard",500,600);
     if Nbscores(fscore) > 0 then
       reset(fscore,IN_FILE);
       declare
@@ -256,20 +256,22 @@ package body p_vue_graph is
           reset(fscore,IN_FILE);
           CopieFicherScore(fscore,VScore);
           triBullesScores(VScore);
-          fenetre:= DebutFenetre("Scoreboard",500,600);
           while  i  <= 10 and i <= VScore'last  loop
             ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,50 + (50*i),250,30);
             ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 250,50 + (50*i),250,30);
             i := i+1;
           end loop;
-          ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
-          finFenetre(fenetre);
-          montrerFenetre(fenetre);
-          if attendreBouton(fenetre) /= "00" then
-            cacherFenetre(fenetre);
-            fenetreaccueil;
-        end if;
       end;
+    else
+      ajouterTexte(fenetre, "PasJoueur",  "Il n'y a aucun score pour l'instant.", 50,50,350,30);
+    end if;
+    ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
+    finFenetre(fenetre);
+    montrerFenetre(fenetre);
+    close(fscore);
+    if attendreBouton(fenetre) = "valider" then
+      cacherFenetre(fenetre);
+      fenetreaccueil;
     end if;
   end fenetreScores;
 
