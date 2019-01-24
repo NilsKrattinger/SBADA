@@ -21,7 +21,6 @@ package p_vue_graph is
 
   procedure AjouterBoutonInvisible (F : in out TR_Fenetre; NomElement : in String; X, Y : in Natural; Largeur, Hauteur : in Positive);
 
-  procedure fenetreRegles ;
 
   procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre);
   --{} => {Affiche la fenetre d'Accueil}
@@ -34,6 +33,12 @@ package p_vue_graph is
 
   procedure fenetreScores;
   --{} => {Affiche la fenetre Scoreboard}
+
+  procedure fenetreRegles;
+  --{} => {Affiche la fenetre Scoreboard}
+
+  procedure fenetreInfo;
+  --{} => {Affiche la fenetre des informations}
 
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre);
   --{} => {Affiche la fenetre Solutions}

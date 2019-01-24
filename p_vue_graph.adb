@@ -119,6 +119,7 @@ package body p_vue_graph is
   end afficherGrille;
 
   procedure fenetreaccueil is
+    -- {} => {affiche la fenetre d'accueil}
     fenetre : TR_Fenetre;
   begin
     fenetre:= DebutFenetre("Accueil",500,600);
@@ -245,9 +246,7 @@ package body p_vue_graph is
     fscore : p_score_io.file_type;
     i : integer ;
   begin
-    put("avant");
     open(fscore, IN_FILE, "score");
-     put("après if2");
     i := 1;
     fenetre:= DebutFenetre("Scoreboard",500,600);
     if Nbscores(fscore) > 0 then
@@ -258,7 +257,7 @@ package body p_vue_graph is
           reset(fscore,IN_FILE);
           CopieFicherScore(fscore,VScore);
           triBullesScores(VScore);
-          while  i  <= 10 and i <= VScore'last  loop
+          while  i  <= 10 and i <= VScore'last  loop --On Crée une zone de text par joueur pour les 10prmeir au maximum
             ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,50 + (50*i),250,30);
             ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 250,50 + (50*i),250,30);
             i := i+1;
@@ -271,14 +270,25 @@ package body p_vue_graph is
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     finFenetre(fenetre);
    montrerFenetre(fenetre);
-   put("après if");
-
-     put("après");
     if attendreBouton(fenetre) = "valider" then
       cacherFenetre(fenetre);
       fenetreaccueil;
     end if;
   end fenetreScores;
+
+  procedure fenetreInfo is
+    fenetre : TR_Fenetre;
+  begin
+      fenetre:= DebutFenetre("informations",600,300);
+      AjouterBoutonImage(fenetre,"Info", "", 0 , 0 , 600 , 300);
+      changerImageBouton(fenetre,"Info","info.xpm");
+      finFenetre(fenetre);
+      montrerFenetre(fenetre);
+      if attendreBouton(fenetre) /= "00" then
+        null;
+      end if;
+  end;
+
 
   procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
   begin
@@ -327,7 +337,8 @@ package body p_vue_graph is
       chronoJeu.fermer;
     elsif Elem = "Scoreboard" then
       CacherFenetre(fenetre);
-      fenetreScores;
+    --  fenetreScores;
+      fenetreInfo;
     else
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     end if;
