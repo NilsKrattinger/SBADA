@@ -1,5 +1,5 @@
-with sequential_IO;
-with text_io; use text_io;
+with sequential_IO, p_jeu;
+with text_io; use text_io, p_jeu, p_jeu.p_score_io;
 
 
 package body p_combinaisons is
@@ -287,8 +287,14 @@ package body p_combinaisons is
 		--   {Génère Fout.txt et foutcont.txt contenant respectivement toutes les solutions et les solutions contigües}
     f: p_cases_io.file_type;
     fout, foutcont: text_io.file_type;
-
+		fscore : p_score_io.file_type;
   begin
+		begin
+			open(fscore, IN_FILE,"score");
+		exception
+			when others => create(fscore, IN_FILE, "score");
+		end;
+		close(fscore);
     open(f, IN_FILE, "CarreGaudi");
     CreeVectGaudi(f, V);
     triVectGaudi(V);

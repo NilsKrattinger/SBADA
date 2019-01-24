@@ -34,9 +34,9 @@ package body p_jeu is
 
   procedure enregistrerScore(score: in TR_Score) is
   -- {} => {le score a été enregistré dans le fichier de scores}
-    f: p_score_io.file_type;
+  f :p_score_io.file_type;
   begin
-    create(f, APPEND_FILE, "score");
+    open(f, APPEND_FILE, "score");
     write(f, score);
     close(f);
   end enregistrerScore;
@@ -44,7 +44,8 @@ package body p_jeu is
   procedure finJeu(abandon: in boolean) is
   -- {} => {Finit le jeu}
   begin
-   if not abandon then enregistrerScore((pseudo, compterPoints)); end if;
+--   if not abandon then
+enregistrerScore((pseudo, compterPoints));-- end if;
     delete(fichierJeu);
     close(fichierSolution);
   end finJeu;
@@ -124,7 +125,7 @@ end Nbscores;
     while permutation loop
       permutation := false;
       for j in reverse i+1..V'last loop
-        if V(j).score < V(j-1).score then
+        if V(j).score > V(j-1).score then
           permut(V(j), V(j-1));
           permutation := true;
         end if;

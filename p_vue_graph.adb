@@ -211,8 +211,8 @@ package body p_vue_graph is
           triBullesScores(VScore);
           fenetre:= DebutFenetre("Scoreboard",500,600);
           while  i  <= 10 and i <= VScore'last  loop
-            ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,50 + (50*i),250,130);
-            ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 250,50 + (50*i),3200,130);
+            ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,50 + (50*i),250,30);
+            ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 250,50 + (50*i),250,30);
             i := i+1;
           end loop;
           ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
