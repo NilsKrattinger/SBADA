@@ -20,7 +20,7 @@ package p_vue_graph is
   chronoJeu: T_ActualisationJeu;
 
   procedure ajouterBoutonInvisible (f: in out TR_Fenetre; nomElement : in String;
-        x, y : in Natural; largeur, hauteur : in Positive)
+        x, y : in Natural; largeur, hauteur : in Positive);
   -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}
 
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
