@@ -52,7 +52,7 @@ package body p_jeu is
     create(fichierJeu, IN_FILE, "solutionsTrouvees");
     open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
     jeuEnCours := true;
-    chrono.start(60.0);
+    chrono.start(30.0);
   end debutJeu;
 
   function compterPoints return integer is
@@ -92,7 +92,7 @@ package body p_jeu is
     if not abandon then enregistrerScore((pseudo, compterPoints));
     else chrono.stop;
     end if;
-    
+
     delete(fichierJeu);
     close(fichierSolution);
     jeuEnCours := false;

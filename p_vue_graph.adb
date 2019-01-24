@@ -1,5 +1,5 @@
-with p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, X.Strings;
-use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, p_combinaisons.p_cases_io, p_jeu.p_score_io;
+with p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, Ada.Characters.Handling, X.Strings;
+use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, Ada.Characters.Handling, p_combinaisons.p_cases_io, p_jeu.p_score_io;
 
 
 package body p_vue_graph is
@@ -185,12 +185,11 @@ package body p_vue_graph is
     ajouterTexte(fenetre,"Txt1","Score : ",50,50,120,30);
     ajouterTexte(fenetre,"Score","0 Point",170,50,120,30);
     ajouterTexte(fenetre,"Txt2","Temps : ",300,50,80,30);
-    ajouterTexte(fenetre,"Timer"," 60",380,50,80,30);
+    ajouterTexte(fenetre,"Timer"," 30",380,50,80,30);
     AjouterChamp(fenetre,"SolutionProp","","",100,520,300,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200 , 560 , 100 , 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
-    --changerStyleTexte(fenetre,"Score", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"SolutionProp", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"valider", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"finjeu", FL_BOLD_STYLE);
@@ -221,14 +220,14 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50,50,150,30);
     AjouterChamp(fenetre,"pseudo","","Pseudo",200,50,160,30);
     ajouterTexte(fenetre,"Txt2","Juste",50,90,60,50);
-    ajouterTexte(fenetre,"Txt3","Doublon",50,150,60,50);
+    ajouterTexte(fenetre,"Txt3","Double",50,150,60,50);
     ajouterTexte(fenetre,"Txt4","Faux",50,210,60,50);
-    ajouterTexte(fenetre, "Regles1", "Bienvenue dans le programme du carre de Subira", 130,90,320,30);
-    ajouterTexte(fenetre, "Regles2", "Bienvenue dans le programme du carre de Subira", 130,120,320,30);
-    ajouterTexte(fenetre, "Regles3", "Bienvenue dans le programme du carre de Subira", 130,150,320,30);
-    ajouterTexte(fenetre, "Regles4", "Bienvenue dans le programme du carre de Subira", 130,180,320,30);
-    ajouterTexte(fenetre, "Regles5", "Bienvenue dans le programme du carre de Subira", 130,210,320,30);
-    ajouterTexte(fenetre, "Regles6", "Bienvenue dans le programme du carre de Subira", 130,240,320,30);
+    ajouterTexte(fenetre, "Regles1", "Bienvenue dans le jeu du carre de Subira", 130,90,320,30);
+    ajouterTexte(fenetre, "Regles2", "Vous devez trouver des combinaisons de", 130,120,320,30);
+    ajouterTexte(fenetre, "Regles3", "3 a 7 cases ayant une somme egale a 33.", 130,150,320,30);
+    ajouterTexte(fenetre, "Regles4", "Votre score augmentera pour chaque combinaison", 130,180,330,30);
+    ajouterTexte(fenetre, "Regles5", "trouvee. Vous ne pouvez pas valider deux fois", 130,210,320,30);
+    ajouterTexte(fenetre, "Regles6", "la meme combinaison. Bonne chance !", 130,240,320,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 300 , 100 , 30);
     changerStyleTexte(fenetre,"Txt2", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"Txt3", FL_BOLD_STYLE);
@@ -504,7 +503,7 @@ package body p_vue_graph is
     combinaison : string(1..14) := (others => ' ');
   begin
     if solution'length <= combinaison'length then
-      combinaison(solution'range) := solution;
+      combinaison(solution'range) := to_upper(solution);
     end if;
 
     case resultat is
