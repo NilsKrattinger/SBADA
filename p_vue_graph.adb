@@ -52,7 +52,7 @@ package body p_vue_graph is
         Texte       :        String;
         Contenu     :        String;
         PElement    :        FL_OBJECT_Access ) is
-  begin
+  begin -- Copie de la procédure de fenbase pour l'utiliser dans AjouterBoutonInvisible
     if Pliste=null or else Pliste.NomElement.all>NomElement then
       Pliste:=new TR_Element'(TypeElement, new String'(NomElement),
         new String'(Texte), new String'(Contenu), PElement, Pliste);
@@ -66,7 +66,7 @@ package body p_vue_graph is
         Pliste     : TA_Element;
         NomElement : String      )
     return TA_Element is
-  begin
+  begin -- Copie de la procédure de fenbase pour l'utiliser dans ajouterBoutonInvisible et afficherGrille
     if Pliste=null or else Pliste.NomElement.all>NomElement then
       return null;
     elsif Pliste.NomElement.all=NomElement then
@@ -83,6 +83,7 @@ package body p_vue_graph is
         Y          : in     Natural;
         Largeur,
         Hauteur    : in     Positive    ) is
+  -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}
     Obj : FL_OBJECT_Access;
   begin
     if GetElement(F.PElements,NomElement)=null then
@@ -99,27 +100,29 @@ package body p_vue_graph is
     f: p_cases_io.file_type;
     V: TV_Gaudi(1..16);
   begin
+    -- Récupération des informations du carré
     open(f, IN_FILE, "CarreGaudi");
     CreeVectGaudi(f, V);
     triVectGaudi(V);
     close(f);
 
+    -- Affichage d'un fond noir pour la grille
     ajouterTexte(fen, "fond_grille", "", x, y, 400, 400);
     changerCouleurFond(fen, "fond_grille", FL_BLACK);
 
-    for i in V'range loop
+    for i in V'range loop -- Ajout des boutons de la grille affichant les nombres
       textX := x + 5 + (99 * ((i-1) / 4));
       textY := y + 5 + (99 * ((i-1) mod 4));
       ajouterTexte(fen, V(i).nom, trim(Integer'image(V(i).valeur), BOTH), textX, textY, 92, 92);
-      AjouterBoutonInvisible(fen, 'B' & V(i).nom, textX, textY, 92, 92);
+      AjouterBoutonInvisible(fen, 'B' & V(i).nom, textX, textY, 92, 92); -- Rend les nombres cliquables, sans voir de bouton
       changerTailleTexte(fen, V(i).nom, FL_HUGE_SIZE);
       P := GetElement(fen.PElements, V(i).nom);
-      fl_set_object_align(P.Pelement, FL_ALIGN_CENTER);
+      fl_set_object_align(P.Pelement, FL_ALIGN_CENTER); -- On centre le texte
     end loop;
   end afficherGrille;
 
   procedure fenetreaccueil is
-    -- {} => {affiche la fenetre d'accueil}
+    -- {} => {affiche la fenêtre d'accueil}
     fenetre : TR_Fenetre;
   begin
     fenetre:= DebutFenetre("Accueil",500,600);
@@ -148,8 +151,18 @@ package body p_vue_graph is
     appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
   end fenetreaccueil;
 
+  procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
+  -- {nomFichier représente un fichier existant} => {Ouvre la fenêtre des solutions}
+  begin
+    open(fichierSolution, IN_FILE, nomFichier);
+    nbCombinaisons := nbCombi(fichierSolution, nbCasesSolution);
+    reset(fichierSolution, IN_FILE);
+    cacherFenetre(fenetre);
+    fenetreSolutions;
+  end ouvreFenetreSolutions;
+
   procedure fenetreSolutions is
-    --{} => {Affiche la fenetre de Solutions}
+    --{} => {Affiche la fenêtre de Solutions}
    fenetre : TR_Fenetre;
   begin
     fenetre:= DebutFenetre("Solutions",500,650);
@@ -180,6 +193,7 @@ package body p_vue_graph is
 
 
   procedure fenetreJeu is
+  --{} => {Affiche la fenêtre de jeu}
     fenetre : TR_Fenetre;
   begin
     fenetre:= DebutFenetre("Jeu",500,650);
@@ -216,6 +230,7 @@ package body p_vue_graph is
   end fenetreJeu;
 
   procedure fenetreRegles is
+  --{} => {Affiche la fenêtre de règles}
     fenetre: TR_Fenetre;
   begin
     fenetre:= DebutFenetre("Regles",500,300);
@@ -243,6 +258,7 @@ package body p_vue_graph is
   end fenetreRegles;
 
   procedure fenetreScores is
+  --{} => {Affiche la fenêtre des scores}
     fenetre: TR_Fenetre;
     fscore : p_score_io.file_type;
     i : integer ;
@@ -278,6 +294,7 @@ package body p_vue_graph is
   end fenetreScores;
 
   procedure fenetreInfo is
+  --{} => {Affiche la fenêtre des informations}
     fenetre : TR_Fenetre;
   begin
       fenetre:= DebutFenetre("informations",800,450);
@@ -291,26 +308,17 @@ package body p_vue_graph is
       end if;
   end;
 
-
-  procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
-  begin
-    open(fichierSolution, IN_FILE, nomFichier);
-    nbCombinaisons := nbCombi(fichierSolution, nbCasesSolution);
-    reset(fichierSolution, IN_FILE);
-    cacherFenetre(fenetre);
-    fenetreSolutions;
-  end ouvreFenetreSolutions;
-
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre) is
-  begin --
-    if Elem in "3" | "4" | "5" | "6" | "7" then
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre d'accueil}
+  begin
+    if Elem in "3" | "4" | "5" | "6" | "7" then -- choix de la taille des solutions à afficher
       for i in 3..7 loop
           changerCouleurTexte(fenetre,integer'image(i)(2..2), FL_BLACK);
       end loop;
       changerCouleurTexte(fenetre,Elem , FL_DOGERBLUE);
       nbCasesSolution := integer'value(elem);
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
-    elsif Elem = "Contigue" then
+    elsif Elem = "Contigue" then -- choix d'afficher des solutions contigües ou non
       if contigue then
         contigue := false;
         changerTexte(fenetre,"Contigue","Non");
@@ -321,39 +329,40 @@ package body p_vue_graph is
         changerCouleurTexte(fenetre,"Contigue" , FL_DOGERBLUE);
       end if;
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
-    elsif Elem = "Solution" then
+    elsif Elem = "Solution" then -- ouvre la fenêtre des solutions
       if contigue then
         ouvreFenetreSolutions("foutcont.txt", fenetre);
       else
         ouvreFenetreSolutions("fout.txt", fenetre);
       end if;
-    elsif Elem = "jeu" then
+    elsif Elem = "jeu" then -- ouvre la fenêtre de jeu
       cacherFenetre(fenetre);
       casesClic := (others => ' ');
       fenetreRegles;
       debutJeu(contigue);
       fenetreJeu;
-    elsif Elem = "Fermer" then
+    elsif Elem = "Fermer" then -- ferme le programme
       CacherFenetre(fenetre);
       chrono.fermer;
       chronoJeu.fermer;
-    elsif Elem = "Scoreboard" then
+    elsif Elem = "Scoreboard" then -- ouvre la fenêtre des scores
       CacherFenetre(fenetre);
      fenetreScores;
-    elsif Elem = "Info" then
+    elsif Elem = "Info" then -- ouvre la fenêtre des infos
      CacherFenetre(fenetre);
     fenetreInfo;
     else
-      appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
+      appuiBoutonAccueil(attendreBouton(fenetre),fenetre); -- l'action est invalide, on attend une nouvelle action valide
     end if;
 
   end appuiBoutonAccueil;
 
   procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre) is
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre affichant les solutions}
     combinaisonVoulue : integer;
     combinaisonOld : integer;
   begin
-    if Elem = "prec" then
+    if Elem = "prec" then -- affichage de la solution précédente
       if combinaisonAct = 1 then
         appuiBoutonSolution(attendreBouton(fenetre),fenetre);
       else
@@ -361,7 +370,7 @@ package body p_vue_graph is
         actualisationInfos(fenetre, combinaisonAct + 1);
         appuiBoutonSolution(attendreBouton(fenetre),fenetre);
       end if;
-    elsif Elem = "suiv" then
+    elsif Elem = "suiv" then -- affichage de la solution suivante
       if combinaisonAct = nbCombinaisons then
         appuiBoutonSolution(attendreBouton(fenetre),fenetre);
       else
@@ -369,11 +378,11 @@ package body p_vue_graph is
         actualisationInfos(fenetre, combinaisonAct - 1);
         appuiBoutonSolution(attendreBouton(fenetre),fenetre);
       end if;
-    elsif Elem = "retour" then
+    elsif Elem = "retour" then -- retour à l'accueil
       cacherFenetre(fenetre);
       close(fichierSolution);
       fenetreAccueil;
-    elsif  Elem = "aller" or Elem = "ChampNum" then
+    elsif  Elem = "aller" or Elem = "ChampNum" then -- saut à une solution via son numéro
       begin
         combinaisonVoulue := integer'value(ConsulterContenu(fenetre,"ChampNum"));
         exception
@@ -393,15 +402,12 @@ package body p_vue_graph is
     else
       appuiBoutonSolution(attendreBouton(fenetre),fenetre);
     end if;
-
-
-
-
   end appuiBoutonSolution;
 
   procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre) is
-    begin -- appuiBoutonRegles
-      if Elem = "pseudo" or Elem ="valider" then
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre affichant les règles}
+    begin
+      if Elem = "pseudo" or Elem ="valider" then -- choix du pseudo
       begin
         if ConsulterContenu(fenetre,"pseudo") /= "Pseudo" then
           pseudo := (others => ' ');
@@ -421,13 +427,15 @@ package body p_vue_graph is
   end appuiBoutonRegles;
 
   function ajoutCase(coord: in string) return boolean is
+  -- {} => {Traite le clic sur une case dans le jeu}
     i : integer := 1;
     j : integer;
   begin
+    -- On parcourt le vecteur d'éléments cliqués jusqu'à trouver l'élément recherché ou un espace libre (caractère espace)
     while i < casesClic'last and then (casesClic(i) /= ' ' and casesClic(i..i+1) /= coord) loop
       i := i + 2;
     end loop;
-    if i >= casesClic'last then return false; end if;
+  if i >= casesClic'last then return false; end if; -- Si on est à la fin du string, on a déjà sélectionné 7 cases (maximum)
     if casesClic(i) = ' ' then -- On insère la nouvelle case
       casesClic(i..i+1) := coord;
       return true;
@@ -447,21 +455,22 @@ package body p_vue_graph is
   end ajoutCase;
 
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre de jeu}
     solutionCorrecte : integer;
     caseClic : string(1..2);
   begin --
-    if jeuEnCours then
-      if Elem = "SolutionProp" or Elem ="valider" then
-        effacerGrille(fenetre);
-        verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
-        actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte);
+    if jeuEnCours then -- Si le jeu est en cours
+      if Elem = "SolutionProp" or Elem ="valider" then -- Validation d'une solution
+        effacerGrille(fenetre); -- On efface la dernière solution colorée
+        verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte); -- On vérifie la validité de la solution (entrée clavier + boutons validés)
+        actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte); -- On met en avant la solution, ou on réaffiche l'ancienne solution si l'actuelle est invalide
         appuiBoutonJeu(attendreBouton(fenetre),fenetre);
-      elsif Elem = "abandon" then
+      elsif Elem = "abandon" then -- Fin prématurée du jeu
         chronoJeu.stop;
         finJeu(true);
         cacherFenetre(fenetre);
         fenetreAccueil;
-      elsif Elem'length = 3
+      elsif Elem'length = 3 -- Appui sur un bouton de la grille BXX, avec XX la valeur de la case
             and Elem(Elem'first) = 'B'
             and Elem(Elem'first + 1) in T_Col'range
             and Integer'value(Elem(Elem'first + 2..Elem'first + 2)) in T_Lig'range then
@@ -475,17 +484,17 @@ package body p_vue_graph is
       else
         appuiBoutonJeu(attendreBouton(fenetre),fenetre);
       end if;
-    elsif Elem = "finjeu" then
+    elsif Elem = "finjeu" then -- Le jeu n'est pas en cours et on appuie sur "Fin jeu"
         cacherFenetre(fenetre);
         fenetreAccueil;
-    else
+    else -- Action invalide
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
     end if;
   end appuiBoutonJeu;
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer) is
-      -- {} => {Actualisation des informations pour la solution nbSol}
-      ancienneSolution, nouvelleSolution: string(1..nbCasesSolution*2);
+  -- {} => {Actualisation des informations pour la solution nbSol}
+    ancienneSolution, nouvelleSolution: string(1..nbCasesSolution*2);
   begin
     reset(fichierSolution, IN_FILE);
     ancienneSolution := combi(fichierSolution, nbCasesSolution, combinaisonOld);
@@ -524,7 +533,7 @@ package body p_vue_graph is
     pts: integer;
     combinaison : string(1..14) := (others => ' ');
   begin
-    if solution'length <= combinaison'length then
+    if solution'length <= combinaison'length then -- On vérifie la taille de la solution
       combinaison(solution'range) := to_upper(solution);
     end if;
 
@@ -535,7 +544,7 @@ package body p_vue_graph is
       when SOLUTION_INVALIDE =>
         coul := ancienneCoul;
         combinaison := (others => ' ');
-        combinaison(1..tailleSolution) := dernier(1..tailleSolution);
+        combinaison(1..tailleSolution) := dernier(1..tailleSolution); -- On reprend l'ancienne solution valide
       when others => null;
     end case;
     ancienneCoul := coul;
@@ -545,7 +554,7 @@ package body p_vue_graph is
     pts := compterPoints;
     changerTexte(fen, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
 
-    casesClic := (others => ' ');
+    casesClic := (others => ' '); -- On retire toutes les cases cliquées
   end actualisationEssai;
 
 end p_vue_graph;

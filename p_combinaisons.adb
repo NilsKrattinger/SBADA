@@ -323,8 +323,8 @@ package body p_combinaisons is
 		resultat := tmp(1..nb) = sol;
 	end resultatExiste;
 
-	procedure permut(a, b: in out string) is -- type des valeurs du vecteur
-	-- {} => {les valeurs de a et b ont été échangées}
+	procedure permut(a, b: in out string) is
+	-- {a'range = b'range = 1..2} => {les valeurs de a et b ont été échangées}
 		temp: string(1..2);
 	begin
 		temp := a;

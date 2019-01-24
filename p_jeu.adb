@@ -8,37 +8,36 @@ package body p_jeu is
     prochaine_maj, datefin : Ada.Calendar.Time;
   begin
     while not fin loop
-      if not actif then
+      if not actif then -- Quand le chrono n'est pas actif
         select
-          accept start(temps: in duration) do
+          accept start(temps: in duration) do -- On démarre le chrono
             actif := true;
             datefin := Ada.Calendar.Clock + temps;
             prochaine_maj := Ada.Calendar.Clock + FREQUENCE_MAJ;
             tempsRestant := datefin - Ada.Calendar.Clock;
           end start;
         or
-          accept fermer do
+          accept fermer do -- On rend le chrono inutilisable
             fin := true;
           end fermer;
         end select;
       else
         select
-          accept stop do
+          accept stop do -- On stoppe le chrono, il peut être à nouveau relancé via start, ou supprimé via fermer
             actif := false;
           end stop;
         or
-          delay until prochaine_maj;
+          delay until prochaine_maj; -- S'il n'y a pas de stop, on attend la prochaine mise à jour du timer
         end select;
 
-        if actif then
+        if actif then -- Si on a appelé le stop, actif = false, donc on vérifie l'activité
           if datefin < Ada.Calendar.Clock then
             actif := false;
             tempsRestant := 0.0;
-            finJeu(false);
+            finJeu(false); -- fin du jeu sans abandon
           else
             tempsRestant := datefin - Ada.Calendar.Clock;
             prochaine_maj := prochaine_maj + FREQUENCE_MAJ;
-            delay until prochaine_maj;
           end if;
         end if;
       end if;
@@ -90,10 +89,10 @@ package body p_jeu is
   -- {} => {Finit le jeu}
   begin
     if not abandon then enregistrerScore((pseudo, compterPoints));
-    else chrono.stop;
+    else chrono.stop; -- Si c'est un abandon, le chrono n'a pas été arrêté
     end if;
 
-    delete(fichierJeu);
+    delete(fichierJeu); -- On supprime le fichier utilisé pour vérifier les doublons
     close(fichierSolution);
     jeuEnCours := false;
   end finJeu;
@@ -103,7 +102,7 @@ package body p_jeu is
     estValide, dejaTrouve: boolean;
     combinaison: string := to_upper(solution);
   begin
-    if combinaison'length > 0 and combinaison'length <= 14 and jeuEnCours then
+    if combinaison'length > 0 and combinaison'length <= 14 and jeuEnCours then -- Si le jeu est en cours, et que la combinaison est de taille correcte
       ordonne(combinaison);
 
       dernier := (others => ' ');
@@ -132,13 +131,13 @@ package body p_jeu is
   --{f ouvert et f- = <>} => {copmpte de le Nb de score du fichier}
   tmp : TR_Score;
   i: integer := 0;
-begin
+  begin
     while not end_of_file(f) loop
-    read(f,Tmp);
+      read(f,Tmp);
       i := i+1;
-  end loop;
-  return i;
-end Nbscores;
+    end loop;
+    return i;
+  end Nbscores;
 
 
   procedure CopieFicherScore(f : in out p_score_io.file_type ;  V : out TV_Score) is
@@ -155,7 +154,7 @@ end Nbscores;
     end loop;
   end CopieFicherScore;
 
-  procedure permut(a, b: in out  TR_Score) is -- type des valeurs du vecteur
+  procedure permut(a, b: in out TR_Score) is
   -- {} => {les valeurs de a et b ont été échangées}
     temp: TR_Score ;
   begin

@@ -20,32 +20,40 @@ package p_vue_graph is
   chronoJeu: T_ActualisationJeu;
 
   procedure AjouterBoutonInvisible (F : in out TR_Fenetre; NomElement : in String; X, Y : in Natural; Largeur, Hauteur : in Positive);
-
-
-  procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre);
-  --{} => {Affiche la fenetre d'Accueil}
+  -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}
 
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
 
   procedure fenetreaccueil;
-  --{} => {Affiche la fenetre d'Accueil}
+  --{} => {Affiche la fenêtre d'Accueil}
 
-  procedure fenetreScores;
-  --{} => {Affiche la fenetre Scoreboard}
+  procedure fenetreSolutions;
+  --{} => {Affiche la fenêtre de Solutions}
+
+  procedure fenetreJeu;
+  --{} => {Affiche la fenêtre de jeu}
 
   procedure fenetreRegles;
-  --{} => {Affiche la fenetre Scoreboard}
+  --{} => {Affiche la fenêtre de règles}
+
+  procedure fenetreScores;
+  --{} => {Affiche la fenêtre des scores}
 
   procedure fenetreInfo;
-  --{} => {Affiche la fenetre des informations}
+  --{} => {Affiche la fenêtre des informations}
 
   procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre);
-  --{} => {Affiche la fenetre Solutions}
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre d'accueil}
 
   procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre);
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre affichant les solutions}
+
+  procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre);
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre affichant les règles}
 
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre);
+  -- {} => {Traite l'appui d'un bouton sur la fenêtre de jeu}
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer);
   -- {} => {Actualisation des informations pour la solution nbSol}
