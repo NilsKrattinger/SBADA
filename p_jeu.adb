@@ -153,7 +153,6 @@ end Nbscores;
       v(i) := tmp;
       i := i+1;
     end loop;
-    close(f);
   end CopieFicherScore;
 
   procedure permut(a, b: in out  TR_Score) is -- type des valeurs du vecteur

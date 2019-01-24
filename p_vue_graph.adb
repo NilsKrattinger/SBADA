@@ -135,7 +135,8 @@ package body p_vue_graph is
     ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265 , 430 , 200 , 50);
     ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 580 , 100 , 50);
     ajouterBouton(fenetre, "Contigue", "Non", 200 , 375 , 50 , 30);
-    ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 190 , 505 ,  120 , 50);
+    ajouterBouton(fenetre, "Info", "info", 265 , 505 ,  200 , 50);
+    ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 35 , 505 , 200 , 50);
     ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50,375,150,30);
     ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50,100,400,30);
     ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50,130,400,30);
@@ -189,7 +190,7 @@ package body p_vue_graph is
     ajouterTexte(fenetre,"Timer"," 30",380,50,80,30);
     AjouterChamp(fenetre,"SolutionProp","","",100,520,300,30);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
-    ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200 , 560 , 100 , 30);
+    ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200 , 600 , 100 , 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200 , 650 , 100 , 30);
     changerStyleTexte(fenetre,"SolutionProp", FL_BOLD_STYLE);
     changerStyleTexte(fenetre,"valider", FL_BOLD_STYLE);
@@ -265,8 +266,8 @@ package body p_vue_graph is
       end;
     else
       ajouterTexte(fenetre, "PasJoueur",  "Il n'y a aucun score pour l'instant.", 50,50,350,30);
-      close(fscore);
     end if;
+      close(fscore);
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     finFenetre(fenetre);
    montrerFenetre(fenetre);
@@ -279,13 +280,14 @@ package body p_vue_graph is
   procedure fenetreInfo is
     fenetre : TR_Fenetre;
   begin
-      fenetre:= DebutFenetre("informations",600,300);
-      AjouterBoutonImage(fenetre,"Info", "", 0 , 0 , 600 , 300);
+      fenetre:= DebutFenetre("informations",800,450);
+      AjouterBoutonImage(fenetre,"Info", "", 0 , 0 , 800 , 500);
       changerImageBouton(fenetre,"Info","info.xpm");
       finFenetre(fenetre);
       montrerFenetre(fenetre);
       if attendreBouton(fenetre) /= "00" then
-        null;
+        cacherFenetre(fenetre);
+        fenetreAccueil;
       end if;
   end;
 
@@ -337,8 +339,10 @@ package body p_vue_graph is
       chronoJeu.fermer;
     elsif Elem = "Scoreboard" then
       CacherFenetre(fenetre);
-    --  fenetreScores;
-      fenetreInfo;
+     fenetreScores;
+    elsif Elem = "Info" then
+     CacherFenetre(fenetre);
+    fenetreInfo;
     else
       appuiBoutonAccueil(attendreBouton(fenetre),fenetre);
     end if;
