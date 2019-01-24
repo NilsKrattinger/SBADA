@@ -138,7 +138,7 @@ package body p_vue_graph is
     ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265 , 430 , 200 , 50);
     ajouterBouton(fenetre, "Fermer", "Quitter", 200 , 580 , 100 , 50);
     ajouterBouton(fenetre, "Contigue", "Non", 200 , 375 , 50 , 30);
-    ajouterBouton(fenetre, "Info", "info", 265 , 505 ,  200 , 50);
+    ajouterBouton(fenetre, "Info", "Informations", 265 , 505 ,  200 , 50);
     ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 35 , 505 , 200 , 50);
     ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50,375,150,30);
     ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50,100,400,30);
@@ -275,8 +275,8 @@ package body p_vue_graph is
           CopieFicherScore(fscore,VScore);
           triBullesScores(VScore);
           while  i  <= 10 and i <= VScore'last  loop --On Crée une zone de text par joueur pour les 10prmeir au maximum
-            ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,50 + (50*i),250,30);
-            ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 250,50 + (50*i),250,30);
+            ajouterTexte(fenetre, "Joueurs" &integer'image(i) ,  " Joueur : " &  VScore(i).pseudo, 50,(50*i),220,30);
+            ajouterTexte(fenetre, "Score" &integer'image(i) , "Points : " & integer'image(VScore(i).Score), 270, (50*i),100,30);
             i := i+1;
           end loop;
       end;
