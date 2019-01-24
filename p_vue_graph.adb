@@ -245,7 +245,9 @@ package body p_vue_graph is
     fscore : p_score_io.file_type;
     i : integer ;
   begin
+    put("avant");
     open(fscore, IN_FILE, "score");
+     put("après if2");
     i := 1;
     fenetre:= DebutFenetre("Scoreboard",500,600);
     if Nbscores(fscore) > 0 then
@@ -264,11 +266,14 @@ package body p_vue_graph is
       end;
     else
       ajouterTexte(fenetre, "PasJoueur",  "Il n'y a aucun score pour l'instant.", 50,50,350,30);
+      close(fscore);
     end if;
     ajouterBouton(fenetre, "valider", "Valider", 200 , 560 , 100 , 30);
     finFenetre(fenetre);
-    montrerFenetre(fenetre);
-    close(fscore);
+   montrerFenetre(fenetre);
+   put("après if");
+
+     put("après");
     if attendreBouton(fenetre) = "valider" then
       cacherFenetre(fenetre);
       fenetreaccueil;
