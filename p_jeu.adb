@@ -1,5 +1,5 @@
-with p_combinaisons ;
-use  p_combinaisons ;
+with p_combinaisons, Ada.Characters.Handling;
+use  p_combinaisons, Ada.Characters.Handling;
 
 package body p_jeu is
   procedure debutJeu(contigue: in boolean) is
@@ -52,7 +52,7 @@ package body p_jeu is
   procedure verifSol(solution: in string; result: out integer) is
   -- {} => {result contient le statut de la solution (correcte, doublon, incorrecte)}
     estValide, dejaTrouve: boolean;
-    combinaison: string := solution;
+    combinaison: string := to_upper(solution);
   begin
     if combinaison'length > 0 and combinaison'length <= 14 then
       ordonne(combinaison);
