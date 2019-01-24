@@ -313,13 +313,28 @@ package body p_vue_graph is
 
   function ajoutCase(coord: in string) return boolean is
     i : integer := 1;
+    j : integer;
   begin
     while i < casesClic'last and then (casesClic(i) /= ' ' and casesClic(i..i+1) /= coord) loop
       i := i + 2;
     end loop;
     if i >= casesClic'last then return false; end if;
-    casesClic(i..i+1) := coord;
-    return true;
+    if casesClic(i) = ' ' then -- On insère la nouvelle case
+      casesClic(i..i+1) := coord;
+      return true;
+    else -- La case est déjà présente, on la retire et on replace la suite pour ne pas avoir de vide
+      casesClic(i..i+1) := "  ";
+      j := i+2;
+      while j < casesClic'last and then casesClic(j) /= ' ' loop
+        j := j + 1;
+      end loop;
+      if j /= i+2 then
+        casesClic(i..j-2) := casesClic(i+2..j);
+        casesClic(j-1..j) := "  ";
+      end if;
+
+      return false;
+    end if;
   end ajoutCase;
 
   procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre) is
@@ -340,7 +355,11 @@ package body p_vue_graph is
           and Elem(Elem'first + 1) in T_Col'range
           and Integer'value(Elem(Elem'first + 2..Elem'first + 2)) in T_Lig'range then
       caseClic := Elem(Elem'first + 1..Elem'first + 2);
-    if ajoutCase(caseClic) then affichageSol(fenetre, caseClic, FL_DARKCYAN); end if;
+      if ajoutCase(caseClic) then
+        affichageSol(fenetre, caseClic, FL_DARKCYAN);
+      else
+        affichageSol(fenetre, caseClic, FL_COL1);
+      end if;
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
     else
       appuiBoutonJeu(attendreBouton(fenetre),fenetre);
