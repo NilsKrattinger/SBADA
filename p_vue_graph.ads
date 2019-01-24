@@ -19,17 +19,18 @@ package p_vue_graph is
   ancienneCoul: FL_Color := FL_COL1;
   chronoJeu: T_ActualisationJeu;
 
-  procedure AjouterBoutonInvisible (F : in out TR_Fenetre; NomElement : in String; X, Y : in Natural; Largeur, Hauteur : in Positive);
+  procedure ajouterBoutonInvisible (f: in out TR_Fenetre; nomElement : in String;
+        x, y : in Natural; largeur, hauteur : in Positive)
   -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}
 
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
 
-  procedure fenetreaccueil;
-  --{} => {Affiche la fenêtre d'Accueil}
+  procedure fenetreAccueil;
+  --{} => {Affiche la fenêtre d'accueil}
 
   procedure fenetreSolutions;
-  --{} => {Affiche la fenêtre de Solutions}
+  --{} => {Affiche la fenêtre de solutions}
 
   procedure fenetreJeu;
   --{} => {Affiche la fenêtre de jeu}
@@ -43,16 +44,16 @@ package p_vue_graph is
   procedure fenetreInfo;
   --{} => {Affiche la fenêtre des informations}
 
-  procedure appuiBoutonAccueil (Elem : in string; fenetre : in out TR_Fenetre);
+  procedure appuiBoutonAccueil (elem : in string; fenetre : in out TR_Fenetre);
   -- {} => {Traite l'appui d'un bouton sur la fenêtre d'accueil}
 
-  procedure appuiBoutonSolution (Elem : in string; fenetre : in out TR_Fenetre);
+  procedure appuiBoutonSolution (elem : in string; fenetre : in out TR_Fenetre);
   -- {} => {Traite l'appui d'un bouton sur la fenêtre affichant les solutions}
 
-  procedure appuiBoutonRegles (Elem : in string; fenetre : in out TR_Fenetre);
+  procedure appuiBoutonRegles (elem : in string; fenetre : in out TR_Fenetre);
   -- {} => {Traite l'appui d'un bouton sur la fenêtre affichant les règles}
 
-  procedure appuiBoutonJeu (Elem : in string; fenetre : in out TR_Fenetre);
+  procedure appuiBoutonJeu (elem : in string; fenetre : in out TR_Fenetre);
   -- {} => {Traite l'appui d'un bouton sur la fenêtre de jeu}
 
   procedure actualisationInfos(fen: in out TR_Fenetre; combinaisonOld: integer);

@@ -48,10 +48,10 @@ package p_jeu is
   procedure verifSol(solution: in string; result: out integer);
   -- {} => {Vérifie si la solution est correcte}
 
-  function Nbscores(f : in p_score_io.file_type) return integer;
-  --{} => {copmpte de le Nb de score du fichier}
+  function nbScores(f : in p_score_io.file_type) return integer;
+  --{f ouvert et f- = <>} => {compte le nombre de score dans le fichier}
 
-  procedure CopieFicherScore(f : in out p_score_io.file_type ;  V : out TV_Score);
+  procedure copieFichierScore(f : in out p_score_io.file_type ;  V : out TV_Score);
   --{f ouvert, V de taille suffisante} => {Copie les elements vers v}
 
   procedure permut(a, b: in out  TR_Score) ;

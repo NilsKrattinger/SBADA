@@ -78,7 +78,7 @@ package body p_jeu is
 
   procedure enregistrerScore(score: in TR_Score) is
   -- {} => {le score a été enregistré dans le fichier de scores}
-  f :p_score_io.file_type;
+  f: p_score_io.file_type;
   begin
     open(f, APPEND_FILE, "score");
     write(f, score);
@@ -127,8 +127,8 @@ package body p_jeu is
     end if;
   end verifSol;
 
-  function Nbscores(f : in p_score_io.file_type) return integer is
-  --{f ouvert et f- = <>} => {copmpte de le Nb de score du fichier}
+  function nbScores(f : in p_score_io.file_type) return integer is
+  --{f ouvert et f- = <>} => {compte le nombre de score dans le fichier}
   tmp : TR_Score;
   i: integer := 0;
   begin
@@ -137,26 +137,25 @@ package body p_jeu is
       i := i+1;
     end loop;
     return i;
-  end Nbscores;
+  end nbScores;
 
-
-  procedure CopieFicherScore(f : in out p_score_io.file_type ;  V : out TV_Score) is
+  procedure copieFichierScore(f : in out p_score_io.file_type ; V : out TV_Score) is
   -- {f ouvert, V de taille suffisante} => {Copie les elements vers v}
     tmp : TR_Score;
     i: integer;
   begin
-    i := v'first;
+    i := V'first;
     reset(f,IN_FILE);
     while not end_of_file(f)  loop
       read(f,tmp);
-      v(i) := tmp;
+      V(i) := tmp;
       i := i+1;
     end loop;
-  end CopieFicherScore;
+  end copieFichierScore;
 
   procedure permut(a, b: in out TR_Score) is
   -- {} => {les valeurs de a et b ont été échangées}
-    temp: TR_Score ;
+    temp: TR_Score;
   begin
     temp := a;
     a := b;

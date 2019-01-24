@@ -31,7 +31,7 @@ package p_combinaisons is
 	-- {f ouvert, V de taille suffisante} => {le contenu de f a été copié dans V}
 
 	procedure triVectGaudi(V : in out TV_Gaudi);
-		-- {} => {V est trié par nom de case}
+	-- {} => {V est trié par nom de case}
 
 	procedure trouveSol(V : in TV_Gaudi; Vcompte : in out TV_Ent);
 	-- {} => {trouve les solutions et les stocke dans des fichiers temporaires}
@@ -57,8 +57,8 @@ package p_combinaisons is
 	-- {fsol ouvert} => {fcont contient les combinaisons contigües de fsol et est structuré de la même façon}
 
 	procedure fichiersInit(V: out TV_Gaudi);
-		-- {V est de taille 16} =>
-		--   {Génère Fout.txt et foutcont.txt contenant respectivement toutes les solutions et les solutions contigües}
+	-- {V est de taille 16} =>
+	--   {Génère Fout.txt et foutcont.txt contenant respectivement toutes les solutions et les solutions contigües}
 
 	procedure resultatExiste(fsol: in out text_io.file_type; sol: in string; resultat: out boolean);
 	-- {fsol ouvert} => {resultat = true si sol est présent dans fsol}

@@ -6,20 +6,19 @@ package body p_combinaisons is
 
   ---- Recherche et affichage des combinaisons --------------------------------------------------------------------
 
-	procedure CreeVectGaudi(f : in out p_cases_IO.file_type; V : out TV_Gaudi) is
+	procedure creeVectGaudi(f : in out p_cases_IO.file_type; V : out TV_Gaudi) is
 	-- {f ouvert, V de taille suffisante} => {le contenu de f a été copié dans V}
 		i : integer;
 		tmp : TR_Case;
-		begin
-			reset(f, IN_FILE);
-			i := V'first;
-			while not end_of_file(f) loop  --On écrit chauque élément de F dans V
-				read(f,tmp);
-				V(i) := tmp;
-				i := i+1;
-			end loop;
-
-	end CreeVectGaudi;
+	begin
+		reset(f, IN_FILE);
+		i := V'first;
+		while not end_of_file(f) loop  --On écrit chauque élément de F dans V
+			read(f,tmp);
+			V(i) := tmp;
+			i := i+1;
+		end loop;
+	end creeVectGaudi;
 
   procedure triVectGaudi(V : in out TV_Gaudi) is
   -- {} => {V trié par nom de case}
@@ -62,7 +61,6 @@ package body p_combinaisons is
 			return resultat;
 		end somme;
 
-
 	begin
 		Vcompte := (others => 0);
 		for i in 3..7 loop
@@ -77,7 +75,6 @@ package body p_combinaisons is
 				for j in Vind'range loop -- initialisation d'un sous-vecteur d'indices de V
 					Vind(j) := V'first+j;
 				end loop;
-
 
 				loop
 					if somme(V, Vind) = 33 then  --Si la somme = 33 on écrit notre vecteur d'indices dans notre fichier de solutions
@@ -178,7 +175,6 @@ package body p_combinaisons is
 			get_line(fsol, str, nb);
 			return str(1..nb);
 		end if;
-
 	end combi;
 
 	function verifContig(C1, C2: in string) return boolean is
@@ -263,15 +259,15 @@ package body p_combinaisons is
 		end copieFichTemp;
 
 	begin
-		reset(fsol,IN_FILE);
-		reset(fcont,OUT_FILE);
+		reset(fsol, IN_FILE);
+		reset(fcont, OUT_FILE);
 		create(ftmp, OUT_FILE, "fconttemp.txt");
 		skip_line(fsol);
 		while not end_of_file(fsol) loop
-			get_line(fsol,tmp,nb);
+			get_line(fsol, tmp, nb);
 			if tmp(1) in T_col'range then
 				if est_contigue(tmp(1..nb)) then
-					put_line(ftmp,tmp(1..nb));
+					put_line(ftmp, tmp(1..nb));
 				end if;
 			else
 				copieFichTemp;

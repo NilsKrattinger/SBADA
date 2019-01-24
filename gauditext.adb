@@ -11,10 +11,10 @@ procedure gauditext is
     while not correct loop
       get_line(entree, taille);
       if taille = 5 then skip_line; end if;
-      if To_Lower(entree(1..taille)) in "oui" | "yes" | "o" | "y" | "1" | "vrai" | "true" then
+      if to_lower(entree(1..taille)) in "oui" | "yes" | "o" | "y" | "1" | "vrai" | "true" then
         resultat := true;
         correct := true;
-      elsif To_Lower(entree(1..taille)) in "non" | "no" | "n" | "0" | "faux" | "false" then
+      elsif to_lower(entree(1..taille)) in "non" | "no" | "n" | "0" | "faux" | "false" then
         resultat := false;
         correct := true;
       else
@@ -39,13 +39,13 @@ procedure gauditext is
       put_line("  q : Quitter");
       get_line(entree, taille);
       if taille = 7 then skip_line; end if;
-      if To_Lower(entree(1..taille)) in "+" | "suiv" | "suivant" | "next" then
+      if to_lower(entree(1..taille)) in "+" | "suiv" | "suivant" | "next" then
         resultat := '+';
         correct := true;
-      elsif To_Lower(entree(1..taille)) in "-" | "prec" | "pred" | "précédent" | "precedent" then
+      elsif to_lower(entree(1..taille)) in "-" | "prec" | "pred" | "précédent" | "precedent" then
         resultat := '-';
         correct := true;
-      elsif To_Lower(entree(1..taille)) in "q" | "quit" | "quitter" then
+      elsif to_lower(entree(1..taille)) in "q" | "quit" | "quitter" then
         resultat := 'q';
         correct := true;
       else
