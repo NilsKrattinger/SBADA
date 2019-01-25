@@ -42,9 +42,9 @@ package body p_server is
       when SOLUTION_ESSAI =>
         decoderMessage(m, code, solution, tailleSolution);
         verifSol(solution(1..tailleSolution), resultatSolution);
-        envoyerMessage(c, creerMessageStatut(trim(Integer'image(resultatSolution), BOTH), SOLUTION_RESULTAT));
+        envoyerMessage(c, creerMessageStatut(trim(Integer'image(resultatSolution) & solution(1..tailleSolution), BOTH), SOLUTION_RESULTAT));
         if resultatSolution = SOLUTION_CORRECTE then
-          envoyerMessageGlobal(SCORE, trim(Integer'image(compterPoints), BOTH));
+          envoyerMessageGlobal(ACTUALISATION_SCORE, trim(Integer'image(compterPoints), BOTH));
         end if;
       when others => null;
     end case;
