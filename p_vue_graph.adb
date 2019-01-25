@@ -294,7 +294,7 @@ package body p_vue_graph is
       cacherFenetre(fenetre);
       fenetreAccueil;
     end if;
-  end;
+  end fenetreInfo;
 
   procedure appuiBoutonAccueil (elem : in string; fenetre : in out TR_Fenetre) is
   -- {} => {Traite l'appui d'un bouton sur la fenêtre d'accueil}
