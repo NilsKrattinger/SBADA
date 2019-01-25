@@ -327,7 +327,7 @@ package body p_vue_graph is
       cacherFenetre(fenetre);
       casesClic := (others => ' ');
       fenetreRegles;
-      debutJeu(contigue);
+      debutJeu(contigue, 60);
       fenetreJeu;
     elsif elem = "Fermer" then -- ferme le programme
       cacherFenetre(fenetre);

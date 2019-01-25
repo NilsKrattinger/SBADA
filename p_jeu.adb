@@ -46,14 +46,14 @@ package body p_jeu is
     end loop;
   end T_Chrono;
 
-  procedure debutJeu(contigue: in boolean) is
+  procedure debutJeu(contigue: in boolean; temps: in duration) is
   -- {} => {Lance le jeu}
   begin
     tailleSolution := 0;
     create(fichierJeu, IN_FILE, "solutionsTrouvees");
     open(fichierSolution, IN_FILE, (if contigue then "foutcont.txt" else "fout.txt"));
     jeuEnCours := true;
-    chrono.start(30.0);
+    chrono.start(temps);
   end debutJeu;
 
   function compterPoints return integer is
@@ -82,9 +82,11 @@ package body p_jeu is
   -- {} => {le score a été enregistré dans le fichier de scores}
   f: p_score_io.file_type;
   begin
-    open(f, APPEND_FILE, "score");
-    write(f, score);
-    close(f);
+    if not coteServeur then
+      open(f, APPEND_FILE, "score");
+      write(f, score);
+      close(f);
+    end if;
   end enregistrerScore;
 
   procedure finJeu(abandon: in boolean) is

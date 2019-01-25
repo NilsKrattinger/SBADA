@@ -6,7 +6,7 @@ package p_client is
     entry start(c: in stream_access);
   end T_Listen;
 
-  procedure handleMessage(c: in stream_access; m: in string);
+  procedure traiterMessage(c: in stream_access; m: in string);
   -- {} => {Handles a message received by the server}
 
   procedure authentification(c: in stream_access);

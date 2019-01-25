@@ -1,5 +1,5 @@
-with GNAT.Sockets, Text_IO, Ada.Exceptions, p_status, p_common;
-use  GNAT.Sockets, Text_IO, Ada.Exceptions, p_status, p_common;
+with GNAT.Sockets, Text_IO, Ada.Exceptions, Ada.Strings, Ada.Strings.Fixed, p_status, p_common, p_jeu;
+use  GNAT.Sockets, Text_IO, Ada.Exceptions, Ada.Strings, Ada.Strings.Fixed, p_status, p_common, p_jeu;
 
 package body p_server is
 
@@ -16,40 +16,59 @@ package body p_server is
       declare
         message : string := String'input (channel);
       begin
-        handleMessage(channel, message, playerId);
+        traiterMessage(channel, message, playerId);
       end;
     end loop;
   end T_Listen;
 
-  procedure handleMessage(c: in stream_access; m: in string; pid: in integer) is
+  procedure traiterMessage(c: in stream_access; m: in string; pid: in integer) is
   -- {} => {Gère un message reçu par le serveur}
     code : integer;
+
+    solution : string(1..14);
+    tailleSolution : integer;
+    resultatSolution : integer;
   begin
-    code := getStatusNumber(m);
+    code := statutMessage(m);
     case code is
       when SEND_NAME =>
-        decode(m, code, players(pid).name, players(pid).nameLen);
+        decoderMessage(m, code, joueurs(pid).name, joueurs(pid).nameLen);
         if verificationPseudo(pid) then
-          put_line("Le joueur " & players(pid).name(1..players(pid).nameLen) & " vient de se connecter.");
-          sendMessage(c, getStatusMessage("", AUTHENTIFICATION_REUSSIE));
+          put_line("Le joueur " & joueurs(pid).name(1..joueurs(pid).nameLen) & " vient de se connecter.");
+          envoyerMessage(c, creerMessageStatut("", AUTHENTIFICATION_REUSSIE));
         else
-          sendMessage(c, getStatusMessage("", PSEUDO_INCORRECT));
+          envoyerMessage(c, creerMessageStatut("", PSEUDO_INCORRECT));
+        end if;
+      when SOLUTION_ESSAI =>
+        decoderMessage(m, code, solution, tailleSolution);
+        verifSol(solution(1..tailleSolution), resultatSolution);
+        envoyerMessage(c, creerMessageStatut(trim(Integer'image(resultatSolution), BOTH), SOLUTION_RESULTAT));
+        if resultatSolution = SOLUTION_CORRECTE then
+          envoyerMessageGlobal(SCORE, trim(Integer'image(compterPoints), BOTH));
         end if;
       when others => null;
     end case;
 
-  end handleMessage;
+  end traiterMessage;
 
   function verificationPseudo(pid: in integer) return boolean is
   -- {} => {Vérifie que le joueur à l'id pid a un pseudo correct (non vide et pas de doublon)}
-    i : integer := players'first;
+    i : integer := joueurs'first;
   begin
-    if players(pid).name = EMPTY_NAME then return false; end if;
-    while i = pid or (i <= players'last and then
-            players(i).name(players(i).nameLen) /= players(pid).name(players(pid).nameLen)) loop
+    if joueurs(pid).name = EMPTY_NAME then return false; end if;
+    while i = pid or (i <= joueurs'last and then
+            joueurs(i).name(joueurs(i).nameLen) /= joueurs(pid).name(joueurs(pid).nameLen)) loop
       i := i + 1;
     end loop;
-    return i > players'last;
+    return i > joueurs'last;
   end verificationPseudo;
+
+  procedure envoyerMessageGlobal(code: in integer; m: in string) is
+  -- {} => {Le message m a été envoyé à tous les joueurs connectés}
+  begin
+    for i in joueurs'range loop
+      envoyerMessage(joueurs(i).channel, creerMessageStatut(m, code));
+    end loop;
+  end envoyerMessageGlobal;
 
 end p_server;

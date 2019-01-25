@@ -15,16 +15,16 @@ package body p_client is
         message : string := String'input (channel);
       begin
         put_line(message);
-        handleMessage(channel, message);
+        traiterMessage(channel, message);
       end;
     end loop;
   end T_Listen;
 
-  procedure handleMessage(c: in stream_access; m: in string) is
+  procedure traiterMessage(c: in stream_access; m: in string) is
   -- {} => {Handles a message received by the server}
     code : integer;
   begin
-    code := getStatusNumber(m);
+    code := statutMessage(m);
     case code is
       when AUTHENTIFICATION_NEEDED => authentification(c);
       when AUTHENTIFICATION_REUSSIE => put_line("Connexion réussie !");
@@ -34,7 +34,7 @@ package body p_client is
       when others => null;
     end case;
 
-  end handleMessage;
+  end traiterMessage;
 
   procedure authentification(c: in stream_access) is
   -- {} => {Authentifie le joueur}
@@ -43,7 +43,7 @@ package body p_client is
   begin
     put("Entrez votre pseudo : ");
     get_line(pseudo, nb);
-    sendMessage(c, getStatusMessage(pseudo(1..nb), SEND_NAME));
+    envoyerMessage(c, creerMessageStatut(pseudo(1..nb), SEND_NAME));
   end authentification;
 
 end p_client;
