@@ -10,6 +10,7 @@ package p_status is
   SOLUTION_ESSAI:           constant integer := 6;
   SOLUTION_RESULTAT:        constant integer := 7;
   ACTUALISATION_SCORE:      constant integer := 8;
+  VERIFICATION_CONNEXION:   constant integer := 9;
 
   function creerMessageStatut(msg: in string; statut: in integer) return string;
   -- {msg est le message à envoyer, statut le code représentant un statut}

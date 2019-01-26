@@ -75,7 +75,11 @@ package body p_server is
   -- {} => {Le message m a été envoyé à tous les joueurs connectés}
   begin
     for i in joueurs'range loop
-      envoyerMessage(joueurs(i).channel, creerMessageStatut(m, code));
+      if joueurs(i).connecte then
+        if not envoyerMessage(joueurs(i).channel, creerMessageStatut(m, code)) then
+          joueurs(i).connecte := false;
+        end if;
+      end if;
     end loop;
   end envoyerMessageGlobal;
 

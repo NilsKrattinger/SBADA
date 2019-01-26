@@ -72,15 +72,22 @@ package body p_vue_graph is
     obj : FL_OBJECT_Access;
   begin
     if getElement(F.PElements, nomElement)=null then
-      obj := fl_Add_Button(FL_HIDDEN_BUTTON, FL_Coord(x), FL_Coord(y),         FL_Coord(largeur), FL_Coord(hauteur), X11.Strings.new_string(""));
+      obj := fl_Add_Button(FL_HIDDEN_BUTTON, FL_Coord(x), FL_Coord(y), FL_Coord(largeur), FL_Coord(hauteur), X11.Strings.new_string(""));
       ajoutElement(F.PElements, roundBouton, nomElement, "", "", obj);
     end if;
   end ajouterBoutonInvisible;
 
+  procedure changerAlignementTexte(f: in out TR_Fenetre; nomElement : in String; alignement : in FL_ALIGN) is
+  -- {} => {Change l'alignement d'un texte}
+    P : TA_Element;
+  begin
+    P := GetElement(f.PElements, nomElement);
+    fl_set_object_align(P.Pelement, alignement);
+  end changerAlignementTexte;
+
   procedure afficherGrille(fen: in out TR_Fenetre; x, y: in natural) is
   -- {} => {Affiche la grille avec le bord gauche à la position (x, y)}
     textX, textY: natural;
-    P : TA_Element;
     f: p_cases_io.file_type;
     V: TV_Gaudi(1..16);
   begin
@@ -100,8 +107,7 @@ package body p_vue_graph is
       ajouterTexte(fen, V(i).nom, trim(Integer'image(V(i).valeur), BOTH), textX, textY, 92, 92);
       AjouterBoutonInvisible(fen, 'B' & V(i).nom, textX, textY, 92, 92); -- Rend les nombres cliquables, sans voir de bouton
       changerTailleTexte(fen, V(i).nom, FL_HUGE_SIZE);
-      P := GetElement(fen.PElements, V(i).nom);
-      fl_set_object_align(P.Pelement, FL_ALIGN_CENTER); -- On centre le texte
+      changerAlignementTexte(fen, V(i).nom, FL_ALIGN_CENTER);
     end loop;
   end afficherGrille;
 
@@ -186,10 +192,13 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Score", "0 Point", 170, 50, 120, 30);
     ajouterTexte(fenetre, "Txt2", "Temps : ", 300, 50, 80, 30);
     ajouterTexte(fenetre, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))), 380, 50, 80, 30);
+    ajouterTexte(fenetre, "erreur", "", 50, 640, 400, 30);
     ajouterChamp(fenetre, "SolutionProp", "", "", 100, 520, 300, 30);
     ajouterBouton(fenetre, "valider", "Valider", 200, 560, 100, 30);
     ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200, 600, 100, 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200, 650, 100, 30);
+    changerCouleurTexte(fenetre, "erreur", FL_INDIANRED);
+    changerStyleTexte(fenetre, "erreur", FL_BOLD_STYLE);
     changerStyleTexte(fenetre, "SolutionProp", FL_BOLD_STYLE);
     changerStyleTexte(fenetre, "valider", FL_BOLD_STYLE);
     changerStyleTexte(fenetre, "finjeu", FL_BOLD_STYLE);
@@ -202,6 +211,8 @@ package body p_vue_graph is
     changerTailleTexte(fenetre, "finjeu", FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt1", FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt2", FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "erreur", FL_MEDIUM_SIZE);
+    changerAlignementTexte(fenetre, "erreur", FL_ALIGN_CENTER);
 
     cacherElem(fenetre, "finjeu");
 
@@ -314,38 +325,63 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Text3 : ", "Port serveur : ", 50, 150, 150, 30);
     ajouterChamp(fenetre, "port", "", "", 200, 150, 160, 30);
 
+    ajouterTexte(fenetre, "erreur", "", 50, 200, 400, 30);
+    changerCouleurTexte(fenetre, "erreur", FL_INDIANRED);
+    changerStyleTexte(fenetre, "erreur", FL_BOLD_STYLE);
+
     ajouterBouton(fenetre, "valider", "Valider", 200, 300, 100, 30);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
 
     loop
-      declare
-        nomBouton : string := attendreBouton(fenetre);
-        pseudo : string := consulterContenu(fenetre, "pseudo");
-        adresse : string := consulterContenu(fenetre, "serveur");
-        port : string := consulterContenu(fenetre, "port");
-      begin
-        if pseudo'length > 20 then
-          changerContenu(fenetre, "pseudo", "");
-        elsif pseudo'length = 0 or adresse'length = 0 or port'length = 0 then null;
-        elsif port'length > 5 then
-          changerContenu(fenetre, "port", "");
-        elsif nomBouton = "valider" then
-          pseudoClient := (others => ' ');
-          pseudoClient(1..pseudo'length) := pseudo;
-          exit;
+      loop
+        declare
+          nomBouton : string := attendreBouton(fenetre);
+          pseudo : string := consulterContenu(fenetre, "pseudo");
+          adresse : string := consulterContenu(fenetre, "serveur");
+          port : string := consulterContenu(fenetre, "port");
+        begin
+          if pseudo'length > 20 then
+            changerContenu(fenetre, "pseudo", "");
+          elsif port'length > 5 then
+            changerContenu(fenetre, "port", "");
+          elsif pseudo'length = 0 or adresse'length = 0 or port'length = 0 then null;
+          else
+            pseudoClient := (others => ' ');
+            pseudoClient(1..pseudo'length) := pseudo;
+            exit;
+          end if;
+        end;
+      end loop;
+
+      if est_connecte then
+        statutErreur := -1;
+        if not envoyerMessage(channel, creerMessageStatut(trim(pseudoClient, BOTH), SEND_NAME)) then
+          cacherFenetre(fenetre);
+          fenetreAccueil;
+          return;
         end if;
-      end;
-    end loop;
-
-
-    while nbEssai <= 10 and not connexion(consulterContenu(fenetre, "serveur"), Integer'value(consulterContenu(fenetre, "port"))) loop
-      nbEssai := nbEssai + 1;
-      if nbEssai = 10 then
-        cacherFenetre(fenetre);
-        fenetreAccueil;
-        return;
       end if;
+
+      while (nbEssai <= 10 and not est_connecte)
+              and then not connexion(consulterContenu(fenetre, "serveur"), Integer'value(consulterContenu(fenetre, "port"))) loop
+        nbEssai := nbEssai + 1;
+        if nbEssai = 10 then
+          cacherFenetre(fenetre);
+          fenetreAccueil;
+          return;
+        end if;
+      end loop;
+
+      while statutErreur = -1 and not authenth loop
+        delay 0.1;
+      end loop;
+
+      if statutErreur = PSEUDO_INCORRECT then
+          changerTexte(fenetre, "erreur", "Le pseudo est incorrect.");
+      end if;
+
+      exit when statutErreur = -1;
     end loop;
 
     cacherFenetre(fenetre);
@@ -515,7 +551,10 @@ package body p_vue_graph is
           changerContenu(fenetre, "SolutionProp", "");
           if enLigne then
             if solution'length <= 14 and solution'length >= 6 then
-              envoyerMessage(channel, creerMessageStatut(solution, SOLUTION_ESSAI));
+              if not envoyerMessage(channel, creerMessageStatut(solution, SOLUTION_ESSAI)) then
+                changerTexte(fenetre, "erreur", "La communication avec le serveur a ete interrompue");
+                deconnexion;
+              end if;
               appuiBoutonJeu(attendreBouton(fenetre), fenetre);
             else
               appuiBoutonJeu(attendreBouton(fenetre), fenetre);

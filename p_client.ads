@@ -9,7 +9,10 @@ package p_client is
   address      : sock_addr_type;
   socket       : socket_type;
   channel      : stream_access;
+
   est_connecte : boolean := false;
+  authenth     : boolean := false;
+  statutErreur : integer := -1;
 
   listen : T_Listen;
 
@@ -29,7 +32,4 @@ package p_client is
 
   procedure traiterMessage(c: in stream_access; m: in string);
   -- {} => {Gère un message reçu par le serveur}
-
-  procedure authentification(c: in stream_access);
-  -- {} => {Authentifie le joueur}
 end p_client;

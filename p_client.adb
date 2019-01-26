@@ -63,6 +63,12 @@ package body p_client is
   procedure deconnexion is
   -- {} => {Le client se déconnecte du serveur}
   begin
+    jeuEnCours := false;
+    cacherElem(fenetreDeJeu, "valider");
+    cacherElem(fenetreDeJeu, "abandon");
+    montrerElem(fenetreDeJeu, "finjeu");
+    
+    authenth := false;
     est_connecte := false;
     close_socket (socket);
   end deconnexion;
@@ -76,10 +82,11 @@ package body p_client is
     code := statutMessage(m);
     case code is
       when AUTHENTIFICATION_NEEDED => envoyerMessage(c, creerMessageStatut(trim(pseudoClient, BOTH), SEND_NAME));
-      when AUTHENTIFICATION_REUSSIE => put_line("Connexion réussie !");
+      when AUTHENTIFICATION_REUSSIE =>
+        authenth := true;
+        statutErreur := -1;
       when PSEUDO_INCORRECT =>
-        put_line("Le pseudo est déjà utilisé, ou vide.");
-        authentification(c);
+        statutErreur := PSEUDO_INCORRECT;
       when SOLUTION_RESULTAT =>
         decoderMessage(m, code, msg, tailleMsg);
         effacerGrille(fenetreDeJeu);
@@ -100,24 +107,10 @@ package body p_client is
         chronoJeu.start(fenetreDeJeu);
         tailleSolution := 0;
       when FIN_JEU =>
-        jeuEnCours := false;
-        cacherElem(fenetreDeJeu, "valider");
-        cacherElem(fenetreDeJeu, "abandon");
-        montrerElem(fenetreDeJeu, "finjeu");
         deconnexion;
       when others => null;
     end case;
 
   end traiterMessage;
-
-  procedure authentification(c: in stream_access) is
-  -- {} => {Authentifie le joueur}
-    pseudo : string(1..NAME_SIZE);
-    nb: integer;
-  begin
-    put("Entrez votre pseudo : ");
-    get_line(pseudo, nb);
-    envoyerMessage(c, creerMessageStatut(pseudo(1..nb), SEND_NAME));
-  end authentification;
 
 end p_client;

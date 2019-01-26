@@ -17,6 +17,7 @@ package p_server is
     channel  : stream_access;
 
     listen   : T_Listen;
+    connecte : boolean := true;
   end record;
 
   type TV_Joueurs is array(1..nbJoueurs) of TR_Joueur;

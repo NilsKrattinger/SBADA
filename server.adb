@@ -63,8 +63,14 @@ begin
       envoyerMessage(joueurs(i).channel, creerMessageStatut("", AUTHENTIFICATION_NEEDED));
 
       joueurs(i).name := (others => ' ');
-      while joueurs(i).name = EMPTY_NAME loop
+    end loop;
+
+    for i in joueurs'range loop
+      while joueurs(i).name = EMPTY_NAME and joueurs(i).connecte loop
         delay 0.5;
+        if not envoyerMessage(joueurs(i).channel, creerMessageStatut("", VERIFICATION_CONNEXION)) then
+          joueurs(i).connecte := false;
+        end if;
       end loop;
     end loop;
 

@@ -23,6 +23,9 @@ package p_vue_graph is
         x, y : in Natural; largeur, hauteur : in Positive);
   -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}
 
+  procedure changerAlignementTexte(f: in out TR_Fenetre; nomElement : in String; alignement : in FL_ALIGN);
+  -- {} => {Change l'alignement d'un texte}
+
   procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural);
   -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
 
