@@ -30,7 +30,7 @@ package p_jeu is
   pseudo: string(1..20);
 
   tempsRestant : duration := 0.0;
-  jeuEnCours, coteServeur : boolean := false;
+  jeuEnCours, coteServeur, enLigne : boolean := false;
   chrono : T_Chrono;
 
   procedure debutJeu(contigue: in boolean; temps: in duration);

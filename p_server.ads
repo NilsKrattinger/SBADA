@@ -25,7 +25,7 @@ package p_server is
   procedure traiterMessage(c: in stream_access; m: in string; pid: in integer);
   -- {} => {Gère un message reçu par le serveur}
 
-  function verificationPseudo(pid: in integer) return boolean;
+  function verificationPseudo(pid: in integer; pseudo : in string) return boolean;
   -- {} => {Vérifie que le joueur à l'id pid a un pseudo correct}
 
   procedure envoyerMessageGlobal(code: in integer; m: in string);

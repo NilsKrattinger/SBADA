@@ -1,5 +1,5 @@
-with GNAT.Sockets ;
-use  GNAT.Sockets ;
+with GNAT.Sockets, p_fenbase;
+use  GNAT.Sockets, p_fenbase;
 
 package p_client is
   task type T_Listen is
@@ -9,8 +9,17 @@ package p_client is
   address      : sock_addr_type;
   socket       : socket_type;
   channel      : stream_access;
+  est_connecte : boolean := false;
+
+  listen : T_Listen;
 
   pseudoClient : string(1..20);
+
+  fenetreDeJeu: TR_Fenetre;
+  jeuOuvert: boolean := false;
+
+  procedure initialiserSocket;
+  -- {} => {Un socket de connexion a été créé}
 
   function connexion(addr: in string; port: in integer) return boolean;
   -- {} => {résultat = vrai si le client se connecte au serveur}

@@ -13,6 +13,7 @@ package body p_vue_graph is
           accept start(fenetre: in out TR_Fenetre) do
             actif := true;
             fen := fenetre;
+            changerTexte(fen, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))));
           end start;
         or
           accept fermer do
@@ -35,11 +36,8 @@ package body p_vue_graph is
           if not jeuEnCours and not enLigne then
             actif := false;
             cacherElem(fen, "valider");
-            changerEtatBouton(fen, "valider", ARRET);
             cacherElem(fen, "abandon");
-            changerEtatBouton(fen, "abandon", ARRET);
             montrerElem(fen, "finjeu");
-            changerEtatBouton(fen, "finjeu", MARCHE);
           end if;
         end if;
       end if;
@@ -187,7 +185,7 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Txt1", "Score : ", 50, 50, 120, 30);
     ajouterTexte(fenetre, "Score", "0 Point", 170, 50, 120, 30);
     ajouterTexte(fenetre, "Txt2", "Temps : ", 300, 50, 80, 30);
-    ajouterTexte(fenetre, "Timer", " 30", 380, 50, 80, 30);
+    ajouterTexte(fenetre, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))), 380, 50, 80, 30);
     ajouterChamp(fenetre, "SolutionProp", "", "", 100, 520, 300, 30);
     ajouterBouton(fenetre, "valider", "Valider", 200, 560, 100, 30);
     ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200, 600, 100, 30);
@@ -206,14 +204,15 @@ package body p_vue_graph is
     changerTailleTexte(fenetre, "Txt2", FL_MEDIUM_SIZE);
 
     cacherElem(fenetre, "finjeu");
-    changerEtatBouton(fenetre, "finjeu", ARRET);
 
     finFenetre(fenetre);
     montrerFenetre(fenetre);
-    chronoJeu.start(fenetre);
 
     if enLigne then
-      fenetreJeu := fenetre;
+      fenetreDeJeu := fenetre;
+      jeuOuvert := true;
+    else
+      chronoJeu.start(fenetre);
     end if;
 
     appuiBoutonJeu(attendreBouton(fenetre), fenetre);
@@ -287,7 +286,6 @@ package body p_vue_graph is
   procedure fenetreInfo is
   --{} => {Affiche la fenêtre des informations}
     fenetre : TR_Fenetre;
-    nbEssai : integer := 1;
   begin
     fenetre := debutFenetre("informations", 800, 450);
     ajouterBoutonImage(fenetre, "Info", "", 0, 0, 800, 500);
@@ -302,7 +300,8 @@ package body p_vue_graph is
 
   procedure fenetreConnexion is
   --{} => {Affiche la fenêtre de connexion}
-    fenetre := TR_Fenetre;
+    fenetre: TR_Fenetre;
+    nbEssai : integer := 1;
   begin
     fenetre := debutFenetre("Connexion", 500, 300);
 
@@ -332,9 +331,13 @@ package body p_vue_graph is
         elsif port'length > 5 then
           changerContenu(fenetre, "port", "");
         elsif nomBouton = "valider" then
+          pseudoClient := (others => ' ');
+          pseudoClient(1..pseudo'length) := pseudo;
           exit;
+        end if;
       end;
     end loop;
+
 
     while nbEssai <= 10 and not connexion(consulterContenu(fenetre, "serveur"), Integer'value(consulterContenu(fenetre, "port"))) loop
       nbEssai := nbEssai + 1;
@@ -342,11 +345,13 @@ package body p_vue_graph is
         cacherFenetre(fenetre);
         fenetreAccueil;
         return;
+      end if;
     end loop;
 
     cacherFenetre(fenetre);
     enLigne := true;
-  end fenetreInfo;
+    fenetreJeu;
+  end fenetreConnexion;
 
   procedure appuiBoutonAccueil (elem : in string; fenetre : in out TR_Fenetre) is
   -- {} => {Traite l'appui d'un bouton sur la fenêtre d'accueil}
@@ -379,7 +384,8 @@ package body p_vue_graph is
       cacherFenetre(fenetre);
       casesClic := (others => ' ');
       fenetreRegles;
-      debutJeu(contigue, 60);
+      enLigne := false;
+      debutJeu(contigue, 60.0);
       fenetreJeu;
     elsif elem = "Fermer" then -- ferme le programme
       cacherFenetre(fenetre);
@@ -390,6 +396,7 @@ package body p_vue_graph is
       fenetreScores;
     elsif elem = "Online" then -- ouvre la fenêtre de connexion
       cacherFenetre(fenetre);
+      casesClic := (others => ' ');
       fenetreConnexion;
     elsif elem = "Info" then -- ouvre la fenêtre des infos
       cacherFenetre(fenetre);
@@ -501,20 +508,32 @@ package body p_vue_graph is
     caseClic : string(1..2);
   begin --
     if jeuEnCours then -- Si le jeu est en cours
-      if elem = "SolutionProp" or elem ="valider" then -- Validation d'une solution
-        if enLigne then
-          envoyerMessage(channel, creerMessageStatut(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), SOLUTION_ESSAI));
-        else
-          effacerGrille(fenetre); -- On efface la dernière solution colorée
-          verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte); -- On vérifie la validité de la solution (entrée clavier + boutons validés)
-          actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte); -- On met en avant la solution, ou on réaffiche l'ancienne solution si l'actuelle est invalide
-          appuiBoutonJeu(attendreBouton(fenetre), fenetre);
-        end if;
+      if elem = "SolutionProp" or elem = "valider" then -- Validation d'une solution
+        declare
+          solution : string := trim(consulterContenu(fenetre, "SolutionProp") & casesClic, BOTH);
+        begin
+          changerContenu(fenetre, "SolutionProp", "");
+          if enLigne then
+            if solution'length <= 14 and solution'length >= 6 then
+              envoyerMessage(channel, creerMessageStatut(solution, SOLUTION_ESSAI));
+              appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+            else
+              appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+            end if;
+          else
+            effacerGrille(fenetre); -- On efface la dernière solution colorée
+            verifSol(solution, solutionCorrecte); -- On vérifie la validité de la solution (entrée clavier + boutons validés)
+            actualisationEssai(fenetre, solution, solutionCorrecte); -- On met en avant la solution, ou on réaffiche l'ancienne solution si l'actuelle est invalide
+            appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+          end if;
+        end;
       elsif elem = "abandon" then -- Fin prématurée du jeu
         if enLigne then
+          deconnexion;
           chronoJeu.stop;
           chrono.stop;
-          cacherFenetre;
+          cacherFenetre(fenetre);
+          jeuOuvert := false;
           fenetreAccueil;
         else
           chronoJeu.stop;
@@ -538,6 +557,10 @@ package body p_vue_graph is
       end if;
     elsif elem = "finjeu" then -- Le jeu n'est pas en cours et on appuie sur "Fin jeu"
       cacherFenetre(fenetre);
+      if enLigne then
+        jeuOuvert := false;
+        chronoJeu.stop;
+      end if;
       fenetreAccueil;
     else -- Action invalide
       appuiBoutonJeu(attendreBouton(fenetre), fenetre);
@@ -586,7 +609,7 @@ package body p_vue_graph is
     combinaison : string(1..14) := (others => ' ');
   begin
     if solution'length <= combinaison'length then -- On vérifie la taille de la solution
-      combinaison(solution'range) := to_upper(solution);
+      combinaison(1..solution'length) := to_upper(solution);
     end if;
 
     case resultat is
@@ -606,6 +629,10 @@ package body p_vue_graph is
     if not enLigne then
       pts := compterPoints;
       changerTexte(fen, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
+    elsif resultat /= SOLUTION_INVALIDE then
+      dernier := (others => ' ');
+      dernier := combinaison;
+      tailleSolution := solution'length;
     end if;
 
     casesClic := (others => ' '); -- On retire toutes les cases cliquées

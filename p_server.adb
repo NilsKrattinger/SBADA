@@ -25,6 +25,9 @@ package body p_server is
   -- {} => {Gère un message reçu par le serveur}
     code : integer;
 
+    pseudo : string(1..20);
+    taillePseudo : integer;
+
     solution : string(1..14);
     tailleSolution : integer;
     resultatSolution : integer;
@@ -32,8 +35,10 @@ package body p_server is
     code := statutMessage(m);
     case code is
       when SEND_NAME =>
-        decoderMessage(m, code, joueurs(pid).name, joueurs(pid).nameLen);
-        if verificationPseudo(pid) then
+        decoderMessage(m, code, pseudo, taillePseudo);
+        if verificationPseudo(pid, pseudo) then
+          joueurs(pid).name := pseudo;
+          joueurs(pid).nameLen := taillePseudo;
           put_line("Le joueur " & joueurs(pid).name(1..joueurs(pid).nameLen) & " vient de se connecter.");
           envoyerMessage(c, creerMessageStatut("", AUTHENTIFICATION_REUSSIE));
         else
@@ -41,7 +46,11 @@ package body p_server is
         end if;
       when SOLUTION_ESSAI =>
         decoderMessage(m, code, solution, tailleSolution);
-        verifSol(solution(1..tailleSolution), resultatSolution);
+        if tailleSolution >= 6 then
+          verifSol(solution(1..tailleSolution), resultatSolution);
+        else
+          resultatSolution := SOLUTION_INVALIDE;
+        end if;
         envoyerMessage(c, creerMessageStatut(trim(Integer'image(resultatSolution) & solution(1..tailleSolution), BOTH), SOLUTION_RESULTAT));
         if resultatSolution = SOLUTION_CORRECTE then
           envoyerMessageGlobal(ACTUALISATION_SCORE, trim(Integer'image(compterPoints), BOTH));
@@ -51,13 +60,12 @@ package body p_server is
 
   end traiterMessage;
 
-  function verificationPseudo(pid: in integer) return boolean is
+  function verificationPseudo(pid: in integer; pseudo: in string) return boolean is
   -- {} => {Vérifie que le joueur à l'id pid a un pseudo correct (non vide et pas de doublon)}
     i : integer := joueurs'first;
   begin
-    if joueurs(pid).name = EMPTY_NAME then return false; end if;
-    while i = pid or (i <= joueurs'last and then
-            joueurs(i).name(joueurs(i).nameLen) /= joueurs(pid).name(joueurs(pid).nameLen)) loop
+    if pseudo = EMPTY_NAME then return false; end if;
+    while i = pid or else (i <= joueurs'last and then pseudo /= joueurs(i).name) loop
       i := i + 1;
     end loop;
     return i > joueurs'last;

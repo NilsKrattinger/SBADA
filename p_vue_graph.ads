@@ -19,9 +19,6 @@ package p_vue_graph is
   ancienneCoul: FL_Color := FL_COL1;
   chronoJeu: T_ActualisationJeu;
 
-  enLigne: boolean := false;
-  fenetreJeu: TR_Fenetre;
-
   procedure ajouterBoutonInvisible (f: in out TR_Fenetre; nomElement : in String;
         x, y : in Natural; largeur, hauteur : in Positive);
   -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}

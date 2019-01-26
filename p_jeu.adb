@@ -36,7 +36,7 @@ package body p_jeu is
           if datefin < Ada.Calendar.Clock then
             actif := false;
             tempsRestant := 0.0;
-            finJeu(false); -- fin du jeu sans abandon
+            if not enLigne then finJeu(false); end if; -- fin du jeu sans abandon
           else
             tempsRestant := datefin - Ada.Calendar.Clock;
             prochaine_maj := prochaine_maj + FREQUENCE_MAJ;
