@@ -468,20 +468,20 @@ package body p_vue_graph is
     elsif elem = "aller" or elem = "ChampNum" then -- saut à une solution via son numéro
       begin
         combinaisonVoulue := Integer'value(ConsulterContenu(fenetre, "ChampNum"));
+        combinaisonOld := combinaisonAct;
+        if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
+          actualisationInfos(fenetre, combinaisonAct);
+          appuiBoutonSolution(attendreBouton(fenetre), fenetre);
+        else
+          combinaisonAct := combinaisonVoulue;
+          actualisationInfos(fenetre, combinaisonOld);
+          appuiBoutonSolution(attendreBouton(fenetre), fenetre);
+        end if;
       exception
         when others =>
           actualisationInfos(fenetre, combinaisonAct);
           appuiBoutonSolution(attendreBouton(fenetre), fenetre);
       end;
-      combinaisonOld := combinaisonAct;
-      if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
-        actualisationInfos(fenetre, combinaisonAct);
-        appuiBoutonSolution(attendreBouton(fenetre), fenetre);
-      else
-        combinaisonAct := combinaisonVoulue;
-        actualisationInfos(fenetre, combinaisonOld);
-        appuiBoutonSolution(attendreBouton(fenetre), fenetre);
-      end if;
     else
       appuiBoutonSolution(attendreBouton(fenetre), fenetre);
     end if;
