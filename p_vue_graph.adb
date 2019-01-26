@@ -1,5 +1,5 @@
-with p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, Ada.Characters.Handling, X.Strings;
-use  p_fenbase, Forms, p_combinaisons, p_jeu, Ada.Strings, Ada.Strings.Fixed, text_io, Ada.Characters.Handling, p_combinaisons.p_cases_io, p_jeu.p_score_io;
+with p_fenbase, Forms, p_combinaisons, p_jeu, p_client, p_common, p_status, Ada.Strings, Ada.Strings.Fixed, text_io, Ada.Characters.Handling, X.Strings;
+use  p_fenbase, Forms, p_combinaisons, p_jeu, p_client, p_common, p_status, Ada.Strings, Ada.Strings.Fixed, text_io, Ada.Characters.Handling, p_combinaisons.p_cases_io, p_jeu.p_score_io;
 
 package body p_vue_graph is
 
@@ -13,6 +13,7 @@ package body p_vue_graph is
           accept start(fenetre: in out TR_Fenetre) do
             actif := true;
             fen := fenetre;
+            changerTexte(fen, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))));
           end start;
         or
           accept fermer do
@@ -32,14 +33,11 @@ package body p_vue_graph is
 
         if actif then
           changerTexte(fen, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))));
-          if not jeuEnCours then
+          if not jeuEnCours and not enLigne then
             actif := false;
             cacherElem(fen, "valider");
-            changerEtatBouton(fen, "valider", ARRET);
             cacherElem(fen, "abandon");
-            changerEtatBouton(fen, "abandon", ARRET);
             montrerElem(fen, "finjeu");
-            changerEtatBouton(fen, "finjeu", MARCHE);
           end if;
         end if;
       end if;
@@ -50,11 +48,9 @@ package body p_vue_graph is
         nomElement : string; texte : string; contenu : string; PElement : FL_OBJECT_Access ) is
   begin -- Copie de la procédure de fenbase pour l'utiliser dans AjouterBoutonInvisible
     if Pliste=null or else Pliste.nomElement.all>nomElement then
-      Pliste:=new TR_Element'(typeElement, new String'(nomElement),
-        new String'(texte), new String'(contenu), PElement, Pliste);
+      Pliste:=new TR_Element'(typeElement, new String'(nomElement),         new String'(texte), new String'(contenu), PElement, Pliste);
     elsif Pliste.nomElement.all<nomElement then
-      ajoutElement(Pliste.suivant, typeElement, nomElement, texte, contenu,
-        PElement);
+      ajoutElement(Pliste.suivant, typeElement, nomElement, texte, contenu,         PElement);
     end if;
   end ajoutElement;
 
@@ -66,7 +62,7 @@ package body p_vue_graph is
     elsif Pliste.nomElement.all=nomElement then
       return Pliste;
     else
-      return GetElement(Pliste.suivant,nomElement);
+      return GetElement(Pliste.suivant, nomElement);
     end if;
   end getElement;
 
@@ -75,17 +71,23 @@ package body p_vue_graph is
   -- {} => {Ajoute un bouton qui n'est pas visible mais est cliquable à l'écran}
     obj : FL_OBJECT_Access;
   begin
-    if getElement(F.PElements,nomElement)=null then
-      obj := fl_Add_Button(FL_HIDDEN_BUTTON,FL_Coord(x),FL_Coord(y),
-        FL_Coord(largeur),FL_Coord(hauteur),X11.Strings.new_string(""));
-      ajoutElement(F.PElements, roundBouton, nomElement, "", "",obj);
+    if getElement(F.PElements, nomElement)=null then
+      obj := fl_Add_Button(FL_HIDDEN_BUTTON, FL_Coord(x), FL_Coord(y), FL_Coord(largeur), FL_Coord(hauteur), X11.Strings.new_string(""));
+      ajoutElement(F.PElements, roundBouton, nomElement, "", "", obj);
     end if;
   end ajouterBoutonInvisible;
 
-  procedure afficherGrille(fen: in out TR_Fenetre; x,y: in natural) is
-  -- {} => {Affiche la grille avec le bord gauche à la position (x,y)}
-    textX, textY: natural;
+  procedure changerAlignementTexte(f: in out TR_Fenetre; nomElement : in String; alignement : in FL_ALIGN) is
+  -- {} => {Change l'alignement d'un texte}
     P : TA_Element;
+  begin
+    P := GetElement(f.PElements, nomElement);
+    fl_set_object_align(P.Pelement, alignement);
+  end changerAlignementTexte;
+
+  procedure afficherGrille(fen: in out TR_Fenetre; x, y: in natural) is
+  -- {} => {Affiche la grille avec le bord gauche à la position (x, y)}
+    textX, textY: natural;
     f: p_cases_io.file_type;
     V: TV_Gaudi(1..16);
   begin
@@ -105,8 +107,7 @@ package body p_vue_graph is
       ajouterTexte(fen, V(i).nom, trim(Integer'image(V(i).valeur), BOTH), textX, textY, 92, 92);
       AjouterBoutonInvisible(fen, 'B' & V(i).nom, textX, textY, 92, 92); -- Rend les nombres cliquables, sans voir de bouton
       changerTailleTexte(fen, V(i).nom, FL_HUGE_SIZE);
-      P := GetElement(fen.PElements, V(i).nom);
-      fl_set_object_align(P.Pelement, FL_ALIGN_CENTER); -- On centre le texte
+      changerAlignementTexte(fen, V(i).nom, FL_ALIGN_CENTER);
     end loop;
   end afficherGrille;
 
@@ -114,9 +115,9 @@ package body p_vue_graph is
   -- {} => {affiche la fenêtre d'accueil}
     fenetre : TR_Fenetre;
   begin
-    fenetre := debutFenetre("Accueil",500,600);
+    fenetre := debutFenetre("Accueil", 500, 600);
     for i in 3..7 loop
-      ajouterBouton(fenetre, Integer'image(i)(2..2), Integer'image(i)(2..2), 75+(75*(i-3)) , 300, 50, 50);
+      ajouterBouton(fenetre, Integer'image(i)(2..2), Integer'image(i)(2..2), 75+(75*(i-3)), 300, 50, 50);
       changerTailleTexte(fenetre, Integer'image(i)(2..2), FL_MEDIUM_SIZE);
       changerStyleTexte(fenetre, Integer'image(i)(2..2), FL_BOLD_STYLE);
     end loop;
@@ -127,13 +128,14 @@ package body p_vue_graph is
     ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265, 430, 200, 50);
     ajouterBouton(fenetre, "Fermer", "Quitter", 200, 580, 100, 50);
     ajouterBouton(fenetre, "Contigue", "Non", 200, 375, 50, 30);
-    ajouterBouton(fenetre, "Info", "Informations", 265, 505, 200, 50);
-    ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 35, 505, 200, 50);
+    ajouterBouton(fenetre, "Info", "Informations", 335, 505, 130, 50);
+    ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 185, 505, 130, 50);
+    ajouterBouton(fenetre, "Online", "En ligne", 35, 505, 130, 50);
     ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50, 375, 150, 30);
     ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50, 100, 400, 30);
     ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50, 130, 400, 30);
     ajouterTexte(fenetre, "Textintro3", "solution, et choisir de ne consulter que les solutions contigues. ", 50, 160, 400, 30);
-    ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220,210,120,30);
+    ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220, 210, 120, 30);
     changerStyleTexte(fenetre, "Contigue", FL_BOLD_STYLE);
     finFenetre(fenetre);
     montrerFenetre(fenetre);
@@ -189,16 +191,19 @@ package body p_vue_graph is
     ajouterTexte(fenetre, "Txt1", "Score : ", 50, 50, 120, 30);
     ajouterTexte(fenetre, "Score", "0 Point", 170, 50, 120, 30);
     ajouterTexte(fenetre, "Txt2", "Temps : ", 300, 50, 80, 30);
-    ajouterTexte(fenetre, "Timer", " 30", 380, 50, 80, 30);
+    ajouterTexte(fenetre, "Timer", Integer'image(Integer(Float'rounding(Float(tempsRestant)))), 380, 50, 80, 30);
+    ajouterTexte(fenetre, "erreur", "", 50, 640, 400, 30);
     ajouterChamp(fenetre, "SolutionProp", "", "", 100, 520, 300, 30);
     ajouterBouton(fenetre, "valider", "Valider", 200, 560, 100, 30);
     ajouterBouton(fenetre, "finjeu", "Fin Jeu", 200, 600, 100, 30);
     ajouterBouton(fenetre, "abandon", "Abandonner", 200, 650, 100, 30);
-    changerStyleTexte(fenetre,"SolutionProp", FL_BOLD_STYLE);
-    changerStyleTexte(fenetre,"valider", FL_BOLD_STYLE);
-    changerStyleTexte(fenetre,"finjeu", FL_BOLD_STYLE);
-    changerStyleTexte(fenetre,"Txt1", FL_BOLD_STYLE);
-    changerStyleTexte(fenetre,"Txt2", FL_BOLD_STYLE);
+    changerCouleurTexte(fenetre, "erreur", FL_INDIANRED);
+    changerStyleTexte(fenetre, "erreur", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre, "SolutionProp", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre, "valider", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre, "finjeu", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre, "Txt1", FL_BOLD_STYLE);
+    changerStyleTexte(fenetre, "Txt2", FL_BOLD_STYLE);
     changerTailleTexte(fenetre, "Score", FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Timer", FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "SolutionProp", FL_MEDIUM_SIZE);
@@ -206,13 +211,21 @@ package body p_vue_graph is
     changerTailleTexte(fenetre, "finjeu", FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt1", FL_MEDIUM_SIZE);
     changerTailleTexte(fenetre, "Txt2", FL_MEDIUM_SIZE);
+    changerTailleTexte(fenetre, "erreur", FL_MEDIUM_SIZE);
+    changerAlignementTexte(fenetre, "erreur", FL_ALIGN_CENTER);
 
     cacherElem(fenetre, "finjeu");
-    changerEtatBouton(fenetre, "finjeu", ARRET);
 
     finFenetre(fenetre);
     montrerFenetre(fenetre);
-    chronoJeu.start(fenetre);
+
+    if enLigne then
+      fenetreDeJeu := fenetre;
+      jeuOuvert := true;
+    else
+      chronoJeu.start(fenetre);
+    end if;
+
     appuiBoutonJeu(attendreBouton(fenetre), fenetre);
 
   end fenetreJeu;
@@ -221,19 +234,19 @@ package body p_vue_graph is
   --{} => {Affiche la fenêtre de règles}
     fenetre: TR_Fenetre;
   begin
-    fenetre := debutFenetre("Regles",500,300);
-    ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50,50,150,30);
-    ajouterChamp(fenetre, "pseudo", "", "Pseudo",200,50,160,30);
-    ajouterTexte(fenetre, "Txt2", "Juste",50,90,60,50);
-    ajouterTexte(fenetre, "Txt3", "Double",50,150,60,50);
-    ajouterTexte(fenetre, "Txt4", "Faux",50,210,60,50);
-    ajouterTexte(fenetre, "Regles1", "Bienvenue dans le jeu du carre de Subira", 130,90,320,30);
-    ajouterTexte(fenetre, "Regles2", "Vous devez trouver des combinaisons de", 130,120,320,30);
-    ajouterTexte(fenetre, "Regles3", "3 a 7 cases ayant une somme egale a 33.", 130,150,320,30);
-    ajouterTexte(fenetre, "Regles4", "Votre score augmentera pour chaque combinaison", 130,180,330,30);
-    ajouterTexte(fenetre, "Regles5", "trouvee. Vous ne pouvez pas valider deux fois", 130,210,320,30);
-    ajouterTexte(fenetre, "Regles6", "la meme combinaison. Bonne chance !", 130,240,320,30);
-    ajouterBouton(fenetre, "valider", "Valider", 200 , 300 , 100 , 30);
+    fenetre := debutFenetre("Regles", 500, 300);
+    ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50, 50, 150, 30);
+    ajouterChamp(fenetre, "pseudo", "", "Pseudo", 200, 50, 160, 30);
+    ajouterTexte(fenetre, "Txt2", "Juste", 50, 90, 60, 50);
+    ajouterTexte(fenetre, "Txt3", "Double", 50, 150, 60, 50);
+    ajouterTexte(fenetre, "Txt4", "Faux", 50, 210, 60, 50);
+    ajouterTexte(fenetre, "Regles1", "Bienvenue dans le jeu du carre de Subira", 130, 90, 320, 30);
+    ajouterTexte(fenetre, "Regles2", "Vous devez trouver des combinaisons de", 130, 120, 320, 30);
+    ajouterTexte(fenetre, "Regles3", "3 a 7 cases ayant une somme egale a 33.", 130, 150, 320, 30);
+    ajouterTexte(fenetre, "Regles4", "Votre score augmentera pour chaque combinaison", 130, 180, 330, 30);
+    ajouterTexte(fenetre, "Regles5", "trouvee. Vous ne pouvez pas valider deux fois", 130, 210, 320, 30);
+    ajouterTexte(fenetre, "Regles6", "la meme combinaison. Bonne chance !", 130, 240, 320, 30);
+    ajouterBouton(fenetre, "valider", "Valider", 200, 300, 100, 30);
     changerStyleTexte(fenetre, "Txt2", FL_BOLD_STYLE);
     changerStyleTexte(fenetre, "Txt3", FL_BOLD_STYLE);
     changerStyleTexte(fenetre, "Txt4", FL_BOLD_STYLE);
@@ -296,6 +309,86 @@ package body p_vue_graph is
     end if;
   end fenetreInfo;
 
+  procedure fenetreConnexion is
+  --{} => {Affiche la fenêtre de connexion}
+    fenetre: TR_Fenetre;
+    nbEssai : integer := 1;
+  begin
+    fenetre := debutFenetre("Connexion", 500, 300);
+
+    ajouterTexte(fenetre, "Text1 : ", "Saisir votre pseudo : ", 50, 50, 150, 30);
+    ajouterChamp(fenetre, "pseudo", "", "", 200, 50, 160, 30);
+
+    ajouterTexte(fenetre, "Text2 : ", "Adresse serveur : ", 50, 100, 150, 30);
+    ajouterChamp(fenetre, "serveur", "", "", 200, 100, 160, 30);
+
+    ajouterTexte(fenetre, "Text3 : ", "Port serveur : ", 50, 150, 150, 30);
+    ajouterChamp(fenetre, "port", "", "", 200, 150, 160, 30);
+
+    ajouterTexte(fenetre, "erreur", "", 50, 200, 400, 30);
+    changerCouleurTexte(fenetre, "erreur", FL_INDIANRED);
+    changerStyleTexte(fenetre, "erreur", FL_BOLD_STYLE);
+
+    ajouterBouton(fenetre, "valider", "Valider", 200, 300, 100, 30);
+    finFenetre(fenetre);
+    montrerFenetre(fenetre);
+
+    loop
+      loop
+        declare
+          nomBouton : string := attendreBouton(fenetre);
+          pseudo : string := consulterContenu(fenetre, "pseudo");
+          adresse : string := consulterContenu(fenetre, "serveur");
+          port : string := consulterContenu(fenetre, "port");
+        begin
+          if pseudo'length > 20 then
+            changerContenu(fenetre, "pseudo", "");
+          elsif port'length > 5 then
+            changerContenu(fenetre, "port", "");
+          elsif pseudo'length = 0 or adresse'length = 0 or port'length = 0 then null;
+          else
+            pseudoClient := (others => ' ');
+            pseudoClient(1..pseudo'length) := pseudo;
+            exit;
+          end if;
+        end;
+      end loop;
+
+      if est_connecte then
+        statutErreur := -1;
+        if not envoyerMessage(channel, creerMessageStatut(trim(pseudoClient, BOTH), SEND_NAME)) then
+          cacherFenetre(fenetre);
+          fenetreAccueil;
+          return;
+        end if;
+      end if;
+
+      while (nbEssai <= 10 and not est_connecte)
+              and then not connexion(consulterContenu(fenetre, "serveur"), Integer'value(consulterContenu(fenetre, "port"))) loop
+        nbEssai := nbEssai + 1;
+        if nbEssai = 10 then
+          cacherFenetre(fenetre);
+          fenetreAccueil;
+          return;
+        end if;
+      end loop;
+
+      while statutErreur = -1 and not authenth loop
+        delay 0.1;
+      end loop;
+
+      if statutErreur = PSEUDO_INCORRECT then
+          changerTexte(fenetre, "erreur", "Le pseudo est incorrect.");
+      end if;
+
+      exit when statutErreur = -1;
+    end loop;
+
+    cacherFenetre(fenetre);
+    enLigne := true;
+    fenetreJeu;
+  end fenetreConnexion;
+
   procedure appuiBoutonAccueil (elem : in string; fenetre : in out TR_Fenetre) is
   -- {} => {Traite l'appui d'un bouton sur la fenêtre d'accueil}
   begin
@@ -327,7 +420,8 @@ package body p_vue_graph is
       cacherFenetre(fenetre);
       casesClic := (others => ' ');
       fenetreRegles;
-      debutJeu(contigue);
+      enLigne := false;
+      debutJeu(contigue, 60.0);
       fenetreJeu;
     elsif elem = "Fermer" then -- ferme le programme
       cacherFenetre(fenetre);
@@ -336,6 +430,10 @@ package body p_vue_graph is
     elsif elem = "Scoreboard" then -- ouvre la fenêtre des scores
       cacherFenetre(fenetre);
       fenetreScores;
+    elsif elem = "Online" then -- ouvre la fenêtre de connexion
+      cacherFenetre(fenetre);
+      casesClic := (others => ' ');
+      fenetreConnexion;
     elsif elem = "Info" then -- ouvre la fenêtre des infos
       cacherFenetre(fenetre);
       fenetreInfo;
@@ -398,7 +496,7 @@ package body p_vue_graph is
       begin
         if ConsulterContenu(fenetre, "pseudo") /= "Pseudo" then
           pseudo := (others => ' ');
-          pseudo(ConsulterContenu(fenetre, "pseudo")'range) := ConsulterContenu(fenetre,"pseudo");
+          pseudo(ConsulterContenu(fenetre, "pseudo")'range) := ConsulterContenu(fenetre, "pseudo");
           cacherFenetre(fenetre);
         else
           appuiBoutonRegles(attendreBouton(fenetre), fenetre);
@@ -446,16 +544,42 @@ package body p_vue_graph is
     caseClic : string(1..2);
   begin --
     if jeuEnCours then -- Si le jeu est en cours
-      if elem = "SolutionProp" or elem ="valider" then -- Validation d'une solution
-        effacerGrille(fenetre); -- On efface la dernière solution colorée
-        verifSol(consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte); -- On vérifie la validité de la solution (entrée clavier + boutons validés)
-        actualisationEssai(fenetre, consulterContenu(fenetre, "SolutionProp") & trim(casesClic, BOTH), solutionCorrecte); -- On met en avant la solution, ou on réaffiche l'ancienne solution si l'actuelle est invalide
-        appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+      if elem = "SolutionProp" or elem = "valider" then -- Validation d'une solution
+        declare
+          solution : string := trim(consulterContenu(fenetre, "SolutionProp") & casesClic, BOTH);
+        begin
+          changerContenu(fenetre, "SolutionProp", "");
+          if enLigne then
+            if solution'length <= 14 and solution'length >= 6 then
+              if not envoyerMessage(channel, creerMessageStatut(solution, SOLUTION_ESSAI)) then
+                changerTexte(fenetre, "erreur", "La communication avec le serveur a ete interrompue");
+                deconnexion;
+              end if;
+              appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+            else
+              appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+            end if;
+          else
+            effacerGrille(fenetre); -- On efface la dernière solution colorée
+            verifSol(solution, solutionCorrecte); -- On vérifie la validité de la solution (entrée clavier + boutons validés)
+            actualisationEssai(fenetre, solution, solutionCorrecte); -- On met en avant la solution, ou on réaffiche l'ancienne solution si l'actuelle est invalide
+            appuiBoutonJeu(attendreBouton(fenetre), fenetre);
+          end if;
+        end;
       elsif elem = "abandon" then -- Fin prématurée du jeu
-        chronoJeu.stop;
-        finJeu(true);
-        cacherFenetre(fenetre);
-        fenetreAccueil;
+        if enLigne then
+          deconnexion;
+          chronoJeu.stop;
+          chrono.stop;
+          cacherFenetre(fenetre);
+          jeuOuvert := false;
+          fenetreAccueil;
+        else
+          chronoJeu.stop;
+          finJeu(true);
+          cacherFenetre(fenetre);
+          fenetreAccueil;
+        end if;
       elsif elem'length = 3 -- Appui sur un bouton de la grille BXX, avec XX la valeur de la case
             and elem(elem'first) = 'B'
             and elem(elem'first + 1) in T_Col'range
@@ -472,6 +596,10 @@ package body p_vue_graph is
       end if;
     elsif elem = "finjeu" then -- Le jeu n'est pas en cours et on appuie sur "Fin jeu"
       cacherFenetre(fenetre);
+      if enLigne then
+        jeuOuvert := false;
+        chronoJeu.stop;
+      end if;
       fenetreAccueil;
     else -- Action invalide
       appuiBoutonJeu(attendreBouton(fenetre), fenetre);
@@ -486,7 +614,7 @@ package body p_vue_graph is
     ancienneSolution := combi(fichierSolution, nbCasesSolution, combinaisonOld);
     reset(fichierSolution, IN_FILE);
     nouvelleSolution := combi(fichierSolution, nbCasesSolution, combinaisonAct);
-    ChangerContenu(fen, "ChampNum", trim(Integer'image(combinaisonAct),BOTH));
+    ChangerContenu(fen, "ChampNum", trim(Integer'image(combinaisonAct), BOTH));
     changerTexte(fen, "Y", '/' & Integer'image(nbCombinaisons));
     changerTexte(fen, "ZoneSolution", nouvelleSolution);
     affichageSol(fen, ancienneSolution, FL_COL1);
@@ -520,7 +648,7 @@ package body p_vue_graph is
     combinaison : string(1..14) := (others => ' ');
   begin
     if solution'length <= combinaison'length then -- On vérifie la taille de la solution
-      combinaison(solution'range) := to_upper(solution);
+      combinaison(1..solution'length) := to_upper(solution);
     end if;
 
     case resultat is
@@ -537,8 +665,14 @@ package body p_vue_graph is
 
     affichageSol(fen, trim(combinaison, BOTH), coul);
     changerContenu(fen, "SolutionProp", "");
-    pts := compterPoints;
-    changerTexte(fen, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
+    if not enLigne then
+      pts := compterPoints;
+      changerTexte(fen, "Score", trim(Integer'image(pts), BOTH) & (if pts >= 2 then " Points" else " Point"));
+    elsif resultat /= SOLUTION_INVALIDE then
+      dernier := (others => ' ');
+      dernier := combinaison;
+      tailleSolution := solution'length;
+    end if;
 
     casesClic := (others => ' '); -- On retire toutes les cases cliquées
   end actualisationEssai;
