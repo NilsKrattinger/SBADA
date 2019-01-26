@@ -18,6 +18,7 @@ package p_vue_graph is
   casesClic: string(1..14);
   ancienneCoul: FL_Color := FL_COL1;
   chronoJeu: T_ActualisationJeu;
+  fermerFenetre: boolean := false;
 
   procedure ajouterBoutonInvisible (f: in out TR_Fenetre; nomElement : in String;
         x, y : in Natural; largeur, hauteur : in Positive);
