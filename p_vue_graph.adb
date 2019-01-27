@@ -189,6 +189,7 @@ package body p_vue_graph is
     fenetre : TR_Fenetre;
   begin
     fenetre := debutFenetre("Jeu", 500, 650);
+    ajouterBoutonInvisible(fenetre, "invisible", 0, 0, 500, 700);
     afficherGrille(fenetre, 50, 100);
     ajouterTexte(fenetre, "Txt1", "Score : ", 50, 50, 120, 30);
     ajouterTexte(fenetre, "Score", "0 Point", 170, 50, 120, 30);
@@ -542,7 +543,7 @@ package body p_vue_graph is
     caseClic : string(1..2);
   begin --
     if jeuEnCours then -- Si le jeu est en cours
-      if elem = "SolutionProp" or elem = "valider" then -- Validation d'une solution
+      if elem = "SolutionProp" or elem = "valider" or clickDroit then -- Validation d'une solution
         declare
           solution : string := trim(consulterContenu(fenetre, "SolutionProp") & casesClic, BOTH);
         begin
