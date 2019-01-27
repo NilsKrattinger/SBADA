@@ -115,31 +115,33 @@ package body p_vue_graph is
   -- {} => {affiche la fenêtre d'accueil}
     fenetre : TR_Fenetre;
   begin
-    fenetre := debutFenetre("Accueil", 500, 600);
-    for i in 3..7 loop
-      ajouterBouton(fenetre, Integer'image(i)(2..2), Integer'image(i)(2..2), 75+(75*(i-3)), 300, 50, 50);
-      changerTailleTexte(fenetre, Integer'image(i)(2..2), FL_MEDIUM_SIZE);
-      changerStyleTexte(fenetre, Integer'image(i)(2..2), FL_BOLD_STYLE);
+    while not fermerFenetre loop
+      fenetre := debutFenetre("Accueil", 500, 600);
+      for i in 3..7 loop
+        ajouterBouton(fenetre, Integer'image(i)(2..2), Integer'image(i)(2..2), 75+(75*(i-3)), 300, 50, 50);
+        changerTailleTexte(fenetre, Integer'image(i)(2..2), FL_MEDIUM_SIZE);
+        changerStyleTexte(fenetre, Integer'image(i)(2..2), FL_BOLD_STYLE);
+      end loop;
+      contigue := false;
+      nbCasesSolution := 3;
+      changerCouleurTexte(fenetre, "3", FL_DOGERBLUE);
+      ajouterBouton(fenetre, "jeu", "Jouer au jeu", 35, 430, 200, 50);
+      ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265, 430, 200, 50);
+      ajouterBouton(fenetre, "Fermer", "Quitter", 200, 580, 100, 50);
+      ajouterBouton(fenetre, "Contigue", "Non", 200, 375, 50, 30);
+      ajouterBouton(fenetre, "Info", "Informations", 335, 505, 130, 50);
+      ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 185, 505, 130, 50);
+      ajouterBouton(fenetre, "Online", "En ligne", 35, 505, 130, 50);
+      ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50, 375, 150, 30);
+      ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50, 100, 400, 30);
+      ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50, 130, 400, 30);
+      ajouterTexte(fenetre, "Textintro3", "solution, et choisir de ne consulter que les solutions contigues. ", 50, 160, 400, 30);
+      ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220, 210, 120, 30);
+      changerStyleTexte(fenetre, "Contigue", FL_BOLD_STYLE);
+      finFenetre(fenetre);
+      montrerFenetre(fenetre);
+      appuiBoutonAccueil(attendreBouton(fenetre), fenetre);
     end loop;
-    contigue := false;
-    nbCasesSolution := 3;
-    changerCouleurTexte(fenetre, "3", FL_DOGERBLUE);
-    ajouterBouton(fenetre, "jeu", "Jouer au jeu", 35, 430, 200, 50);
-    ajouterBouton(fenetre, "Solution", "Afficher Solutions", 265, 430, 200, 50);
-    ajouterBouton(fenetre, "Fermer", "Quitter", 200, 580, 100, 50);
-    ajouterBouton(fenetre, "Contigue", "Non", 200, 375, 50, 30);
-    ajouterBouton(fenetre, "Info", "Informations", 335, 505, 130, 50);
-    ajouterBouton(fenetre, "Scoreboard", "Scoreboard", 185, 505, 130, 50);
-    ajouterBouton(fenetre, "Online", "En ligne", 35, 505, 130, 50);
-    ajouterTexte(fenetre, "TexTContigue : ", "Seulement contigue : ", 50, 375, 150, 30);
-    ajouterTexte(fenetre, "Textintro", "Bienvenue dans le programme du carre de Subirachs", 50, 100, 400, 30);
-    ajouterTexte(fenetre, "Textintro2", "Sur cet ecran, vous pouvez choisir le nombre d'elements d'une", 50, 130, 400, 30);
-    ajouterTexte(fenetre, "Textintro3", "solution, et choisir de ne consulter que les solutions contigues. ", 50, 160, 400, 30);
-    ajouterTexte(fenetre, "Textintro4", "Bon jeu ! ", 220, 210, 120, 30);
-    changerStyleTexte(fenetre, "Contigue", FL_BOLD_STYLE);
-    finFenetre(fenetre);
-    montrerFenetre(fenetre);
-    appuiBoutonAccueil(attendreBouton(fenetre), fenetre);
   end fenetreAccueil;
 
   procedure ouvreFenetreSolutions(nomFichier: in string; fenetre: TR_Fenetre) is
@@ -187,6 +189,7 @@ package body p_vue_graph is
     fenetre : TR_Fenetre;
   begin
     fenetre := debutFenetre("Jeu", 500, 650);
+    ajouterBoutonInvisible(fenetre, "invisible", 0, 0, 500, 700);
     afficherGrille(fenetre, 50, 100);
     ajouterTexte(fenetre, "Txt1", "Score : ", 50, 50, 120, 30);
     ajouterTexte(fenetre, "Score", "0 Point", 170, 50, 120, 30);
@@ -290,7 +293,6 @@ package body p_vue_graph is
     montrerFenetre(fenetre);
     if attendreBouton(fenetre) = "valider" then
       cacherFenetre(fenetre);
-      fenetreAccueil;
     end if;
   end fenetreScores;
 
@@ -305,7 +307,6 @@ package body p_vue_graph is
     montrerFenetre(fenetre);
     if attendreBouton(fenetre) /= "00" then
       cacherFenetre(fenetre);
-      fenetreAccueil;
     end if;
   end fenetreInfo;
 
@@ -358,7 +359,6 @@ package body p_vue_graph is
         statutErreur := -1;
         if not envoyerMessage(channel, creerMessageStatut(trim(pseudoClient, BOTH), SEND_NAME)) then
           cacherFenetre(fenetre);
-          fenetreAccueil;
           return;
         end if;
       end if;
@@ -368,7 +368,6 @@ package body p_vue_graph is
         nbEssai := nbEssai + 1;
         if nbEssai = 10 then
           cacherFenetre(fenetre);
-          fenetreAccueil;
           return;
         end if;
       end loop;
@@ -424,6 +423,7 @@ package body p_vue_graph is
       debutJeu(contigue, 60.0);
       fenetreJeu;
     elsif elem = "Fermer" then -- ferme le programme
+      fermerFenetre := true;
       cacherFenetre(fenetre);
       chrono.fermer;
       chronoJeu.fermer;
@@ -466,24 +466,23 @@ package body p_vue_graph is
     elsif elem = "retour" then -- retour à l'accueil
       cacherFenetre(fenetre);
       close(fichierSolution);
-      fenetreAccueil;
     elsif elem = "aller" or elem = "ChampNum" then -- saut à une solution via son numéro
       begin
         combinaisonVoulue := Integer'value(ConsulterContenu(fenetre, "ChampNum"));
+        combinaisonOld := combinaisonAct;
+        if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
+          actualisationInfos(fenetre, combinaisonAct);
+          appuiBoutonSolution(attendreBouton(fenetre), fenetre);
+        else
+          combinaisonAct := combinaisonVoulue;
+          actualisationInfos(fenetre, combinaisonOld);
+          appuiBoutonSolution(attendreBouton(fenetre), fenetre);
+        end if;
       exception
         when others =>
           actualisationInfos(fenetre, combinaisonAct);
           appuiBoutonSolution(attendreBouton(fenetre), fenetre);
       end;
-      combinaisonOld := combinaisonAct;
-      if combinaisonVoulue > nbCombinaisons or combinaisonVoulue < 1 then
-        actualisationInfos(fenetre, combinaisonAct);
-        appuiBoutonSolution(attendreBouton(fenetre), fenetre);
-      else
-        combinaisonAct := combinaisonVoulue;
-        actualisationInfos(fenetre, combinaisonOld);
-        appuiBoutonSolution(attendreBouton(fenetre), fenetre);
-      end if;
     else
       appuiBoutonSolution(attendreBouton(fenetre), fenetre);
     end if;
@@ -544,7 +543,7 @@ package body p_vue_graph is
     caseClic : string(1..2);
   begin --
     if jeuEnCours then -- Si le jeu est en cours
-      if elem = "SolutionProp" or elem = "valider" then -- Validation d'une solution
+      if elem = "SolutionProp" or elem = "valider" or clickDroit then -- Validation d'une solution
         declare
           solution : string := trim(consulterContenu(fenetre, "SolutionProp") & casesClic, BOTH);
         begin
@@ -573,12 +572,10 @@ package body p_vue_graph is
           chrono.stop;
           cacherFenetre(fenetre);
           jeuOuvert := false;
-          fenetreAccueil;
         else
           chronoJeu.stop;
           finJeu(true);
           cacherFenetre(fenetre);
-          fenetreAccueil;
         end if;
       elsif elem'length = 3 -- Appui sur un bouton de la grille BXX, avec XX la valeur de la case
             and elem(elem'first) = 'B'
@@ -600,7 +597,6 @@ package body p_vue_graph is
         jeuOuvert := false;
         chronoJeu.stop;
       end if;
-      fenetreAccueil;
     else -- Action invalide
       appuiBoutonJeu(attendreBouton(fenetre), fenetre);
     end if;
